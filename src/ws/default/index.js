@@ -16,10 +16,16 @@ exports.handler = async function ws(event) {
   let queryResp = await data.chatapp.query({KeyConditionExpression: 'id = :id', ExpressionAttributeValues: {':id': `room#${roomId}`}})
   console.log('queryResp', queryResp)
   queryResp?.Items.forEach(async (dbObj) => {
-    await arc.ws.send({
-      id: dbObj.connectionId,
-      payload: {text: message.text, sender: connectionId, roomId, timestamp}
-    })
+    try {
+      await arc.ws.send({
+        id: dbObj.connectionId,
+        payload: {text: message.text, sender: connectionId, roomId, timestamp}
+      })
+  
+    } catch(e) {
+      console.log(`error sending message to connectionId: ${connectionId}`)
+      console.log(e)
+    }
   
   })
 

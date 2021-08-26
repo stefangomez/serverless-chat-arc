@@ -3,13 +3,18 @@ let arc = require('@architect/functions')
 /**
  * used to clean up event.requestContext.connectionId
  */
-exports.handler = async function ws(event) {
+exports.handler = async function ws(event, other) {
   console.log('ws-disconnect called with', event)
-  let message = JSON.parse(event.body || "{}")
+  console.log('ws-disconnect called with other', other)
   let connectionId = event.requestContext.connectionId
-  let roomId = message?.roomId || 'default'
 
   let data = await arc.tables()
-  await data.chatapp.delete({id: `room#${roomId}`, sortKey: `listeners#${connectionId}` })
+
+  let queryResp = await data.chatapp.query({IndexName: 'GSI', KeyConditionExpression: 'sortKey = :sortKey', ExpressionAttributeValues: {':sortKey': `listeners#${connectionId}`}})
+  console.log('queryResp', queryResp)
+  queryResp?.Items.forEach(async (dbObj) => {
+    await data.chatapp.delete({id: dbObj.id, sortKey: dbObj.sortKey })  
+  })
+
   return {statusCode: 200}
 }

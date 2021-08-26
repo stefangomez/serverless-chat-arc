@@ -1,5 +1,5 @@
 @app
-test-ws
+serverless-chat-arc
 
 @ws
 # no further config required
@@ -15,4 +15,10 @@ chatapp
   sortKey **String
   expires TTL
 
+@indexes
+chatapp
+  name GSI
+  sortKey *String
+  createdAt **String
+  
 @static

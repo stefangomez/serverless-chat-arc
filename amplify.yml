@@ -1,0 +1,21 @@
+version: 1
+# env:
+#   variables:
+#     key: value
+backend:
+  phases:
+    preBuild:
+      commands:
+        - npm i -g @architect/architect
+    build:
+      commands:
+        - arc deploy
+frontend:
+  phases:
+    build:
+      commands:
+        - echo "TODO write WS url to web/config.mjs"
+  artifacts:
+    files: 
+      - '**/*'
+    baseDirectory: web

@@ -1,12 +1,12 @@
+import {websocketURL} from './config.mjs'
 // get the web socket url from the backend
-let url = window.WS_URL
+let url = websocketURL
 
 // all the DOM nodes this script will mutate
 let main = document.getElementsByTagName('main')[0]
 let msg = document.getElementById('message')
-let queryParams = Object.fromEntries(new URLSearchParams(window.location.search).entries());
-let roomId = queryParams.roomId || 'default';
-
+let roomId =window.location.pathname.slice(1) || 'default';
+console.log('roomId', roomId)
 // setup the web socket
 let ws = new WebSocket(`${url}?roomId=${roomId}`)
 ws.onopen = open

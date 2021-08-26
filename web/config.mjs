@@ -1,0 +1,1 @@
+export const websocketURL = "wss://ksi45cnjjb.execute-api.us-west-2.amazonaws.com/staging";
