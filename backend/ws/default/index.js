@@ -24,7 +24,15 @@ exports.handler = async function ws(event) {
     try {
       await arc.ws.send({
         id: dbObj.connectionId,
-        payload: { messageId, text: message.text, sender: username, roomId, sentAt, serverReceivedAt: timestamp },
+        payload: {
+          messageId,
+          text: message.text,
+          sender: username,
+          roomId,
+          sentAt,
+          serverReceivedAt: timestamp,
+          connectionId,
+        },
       });
     } catch (e) {
       console.log(`error sending message to connectionId: ${connectionId}`);
