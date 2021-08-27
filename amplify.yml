@@ -16,6 +16,6 @@ frontend:
       commands:
         - echo "TODO write WS url to web/config.mjs"
   artifacts:
-    files: 
+    files:
       - '**/*'
     baseDirectory: web

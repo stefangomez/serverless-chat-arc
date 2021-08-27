@@ -6,9 +6,6 @@ serverless-chat-arc
 # client code is in /public
 # serverless code is in /src/ws/*
 
-@http
-get /
-
 @tables
 chatapp
   id *String
