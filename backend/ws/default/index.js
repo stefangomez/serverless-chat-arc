@@ -12,6 +12,7 @@ exports.handler = async function ws(event) {
   let message = JSON.parse(event.body);
   let roomId = message.roomId || 'default';
   let sentAt = message.sentAt || timestamp;
+  let username = message.username || connectionId;
   // let text = `${timestamp} - Echoing ${message.text}`
   let data = await arc.tables();
   let queryResp = await data.chatapp.query({
@@ -23,7 +24,7 @@ exports.handler = async function ws(event) {
     try {
       await arc.ws.send({
         id: dbObj.connectionId,
-        payload: { messageId, text: message.text, sender: connectionId, roomId, sentAt, serverReceivedAt: timestamp },
+        payload: { messageId, text: message.text, sender: username, roomId, sentAt, serverReceivedAt: timestamp },
       });
     } catch (e) {
       console.log(`error sending message to connectionId: ${connectionId}`);
