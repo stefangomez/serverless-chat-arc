@@ -15,6 +15,7 @@ import {
   EditableInput,
   Input,
   Badge,
+  Avatar,
 } from '@chakra-ui/react';
 import { ColorModeSwitcher } from './ColorModeSwitcher';
 import { ImGithub } from 'react-icons/im';
@@ -43,7 +44,8 @@ export const App = () => {
 
   React.useEffect(() => {
     const newWsConn = new WebSocket(`wss://ksi45cnjjb.execute-api.us-west-2.amazonaws.com/staging?roomId=${roomId}`);
-    newWsConn.onopen = () => {
+    newWsConn.onopen = e => {
+      console.log('onopen e', e);
       setConnectionState('connected');
     };
 
@@ -87,6 +89,28 @@ export const App = () => {
     }
     return 'red';
   }, [connectionState]);
+
+  const groupedChats = React.useMemo(() => {
+    console.log('chats', chats);
+    let lastChat: any = null;
+    const grouped = [];
+    chats.forEach(chat => {
+      if (lastChat && lastChat.connectionId === chat.connectionId) {
+        lastChat.messages = [...(lastChat?.messages || []), chat];
+      } else if (lastChat) {
+        grouped.push(lastChat);
+        lastChat = { ...chat, messages: [chat] };
+      } else {
+        lastChat = { ...chat, messages: [chat] };
+      }
+    });
+    if (lastChat) {
+      grouped.push(lastChat);
+    }
+    return grouped;
+  }, [chats]);
+
+  console.log('groupedChats', groupedChats);
   return (
     <ChakraProvider theme={theme}>
       <Box textAlign='center' fontSize='xl'>
@@ -137,13 +161,30 @@ export const App = () => {
               w='100%'
               overflowY='scroll'
             >
-              <VStack fontSize='sm' w='100%' textAlign='left'>
-                {chats.map(chat => (
-                  <HStack key={chat.messageId} w='100%'>
-                    <Text fontWeight='bold'>{chat.sender}</Text>
-                    <Text>{chat.text}</Text>
-                  </HStack>
-                ))}
+              <VStack spacing={2} fontSize='sm' w='100%' textAlign='left'>
+                {groupedChats.map(chat => {
+                  return (
+                    <HStack
+                      alignItems='flex-start'
+                      color={chat.isSelf ? 'teal.600' : 'gray.800'}
+                      key={chat.messageId}
+                      w='100%'
+                    >
+                      <Avatar borderRadius='4px' mt='3px' w='40px' h='40px' name={chat.sender} />
+                      <VStack spacing='0px' alignItems='flex-start'>
+                        <HStack>
+                          <Text fontWeight='bold'>{chat.sender}</Text>
+                          <Text fontSize='11px' color='gray.600'>
+                            {new Date(chat.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </Text>
+                        </HStack>
+                        {chat.messages.map((c: any) => (
+                          <Text key={c.messageId}>{c.text}</Text>
+                        ))}
+                      </VStack>
+                    </HStack>
+                  );
+                })}
                 {chats.length === 0 && <Text>Waiting for chats</Text>}
               </VStack>
             </Box>
