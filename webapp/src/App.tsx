@@ -22,16 +22,12 @@ import { ImGithub } from 'react-icons/im';
 const DEFAULT_USERNAME = 'anon' + Math.floor(Math.random() * 10000);
 
 export const App = () => {
-  console.log('App rendered: DEFAULT_USERNAME', DEFAULT_USERNAME);
   const [socket, setSocket] = React.useState<any>(null);
   const [connectionState, setConnectionState] = React.useState('connecting');
 
   const [username, setUsername] = React.useState(DEFAULT_USERNAME);
   const [chats, setChats] = React.useState<any[]>([]);
-  const roomId = React.useMemo(() => {
-    console.log('roomId called');
-    return window.location.pathname.slice(1) || 'default';
-  }, []);
+  const roomId = React.useMemo(() => window.location.pathname.slice(1) || 'default', []);
   const onRoomChange = React.useCallback(
     (newRoomId: string) => {
       if (newRoomId !== roomId) {
@@ -45,8 +41,6 @@ export const App = () => {
     setUsername(newUsername || DEFAULT_USERNAME);
   }, []);
 
-  // const socket = React.useMemo(() => new WebSocket(`ws://localhost:3333?roomId=${roomId}`), [roomId]);
-
   React.useEffect(() => {
     const newWsConn = new WebSocket(`wss://ksi45cnjjb.execute-api.us-west-2.amazonaws.com/staging?roomId=${roomId}`);
     newWsConn.onopen = () => {
@@ -54,7 +48,6 @@ export const App = () => {
     };
 
     newWsConn.onmessage = e => {
-      console.log('onmessage e', e);
       const msg = JSON.parse(e.data);
       setChats((prevChats: any[]) => [...prevChats, msg]);
     };
@@ -68,26 +61,6 @@ export const App = () => {
       newWsConn.close();
     };
   }, [roomId]);
-
-  // React.useEffect(() => {
-  //   if (socket) {
-  //     socket.onopen = () => {
-  //       setConnectionState('connected');
-  //     };
-
-  //     socket.onmessage = e => {
-  //       console.log('onmessage e', e);
-  //       const msg = JSON.parse(e.data);
-  //       setChats((prevChats: any[]) => [...prevChats, msg]);
-  //     };
-
-  //     socket.onclose = () => {
-  //       setConnectionState('closed');
-  //     };
-
-  //   }
-
-  // }, [socket]);
 
   const chatInputRef = React.useRef<HTMLInputElement>(null);
   const sendMessage = React.useCallback(
@@ -105,8 +78,6 @@ export const App = () => {
     },
     [sendMessage]
   );
-  console.log('App:connectionState', connectionState);
-  console.log('App:chats', chats);
   const connectionStateColor = React.useMemo(() => {
     if (connectionState === 'connected') {
       return 'green';
@@ -131,7 +102,6 @@ export const App = () => {
               <HStack>
                 <Icon as={ImGithub} />
                 <Text>GitHub</Text>
-                {/* <Icon as={FiExternalLink} /> */}
               </HStack>
             </Link>
             <ColorModeSwitcher />

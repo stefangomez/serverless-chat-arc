@@ -1,7 +1,7 @@
 import { config } from './config.mjs';
 // get the web socket url from the backend
-// let url = 'ws://localhost:3333';
-let url = config.websocketURL;
+let url = 'ws://localhost:3333';
+// let url = config.websocketURL;
 
 // all the DOM nodes this script will mutate
 let header = document.getElementsByTagName('h2')[0];
