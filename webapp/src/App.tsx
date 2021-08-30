@@ -23,8 +23,7 @@ import { ImGithub } from 'react-icons/im';
 const DEFAULT_USERNAME = 'anon' + Math.floor(Math.random() * 10000);
 
 export const App = () => {
-  const [socket, setSocket] = React.useState<any>(null);
-  const [connectionState, setConnectionState] = React.useState('connecting');
+  const [connection, setConnection] = React.useState<any>({ socket: null, state: 'connecting' });
 
   const [username, setUsername] = React.useState(DEFAULT_USERNAME);
   const [chats, setChats] = React.useState<any[]>([]);
@@ -45,8 +44,7 @@ export const App = () => {
   React.useEffect(() => {
     const newWsConn = new WebSocket(`wss://ksi45cnjjb.execute-api.us-west-2.amazonaws.com/staging?roomId=${roomId}`);
     newWsConn.onopen = e => {
-      console.log('onopen e', e);
-      setConnectionState('connected');
+      setConnection({ socket: newWsConn, state: 'connected' });
     };
 
     newWsConn.onmessage = e => {
@@ -55,19 +53,20 @@ export const App = () => {
     };
 
     newWsConn.onclose = () => {
-      setConnectionState('closed');
+      setConnection({ socket: null, state: 'closed' });
     };
-    setSocket(newWsConn);
 
     return () => {
       newWsConn.close();
+      setConnection({ socket: null, state: 'closed' });
     };
   }, [roomId]);
 
   const chatInputRef = React.useRef<HTMLInputElement>(null);
   const sendMessage = React.useCallback(
-    (text: string) => socket.send(JSON.stringify({ text, roomId, sentAt: new Date().getTime(), username })),
-    [socket, roomId, username]
+    (text: string) =>
+      connection?.socket?.send(JSON.stringify({ text, roomId, sentAt: new Date().getTime(), username })),
+    [connection, roomId, username]
   );
   const onChatInputKeyup = React.useCallback(
     (e: any) => {
@@ -80,6 +79,8 @@ export const App = () => {
     },
     [sendMessage]
   );
+
+  const connectionState = React.useMemo(() => connection?.state, [connection]);
   const connectionStateColor = React.useMemo(() => {
     if (connectionState === 'connected') {
       return 'green';
@@ -91,7 +92,6 @@ export const App = () => {
   }, [connectionState]);
 
   const groupedChats = React.useMemo(() => {
-    console.log('chats', chats);
     let lastChat: any = null;
     const grouped = [];
     chats.forEach(chat => {
@@ -110,7 +110,6 @@ export const App = () => {
     return grouped;
   }, [chats]);
 
-  console.log('groupedChats', groupedChats);
   return (
     <ChakraProvider theme={theme}>
       <Box textAlign='center' fontSize='xl'>
