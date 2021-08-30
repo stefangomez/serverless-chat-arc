@@ -1,11 +1,9 @@
 import * as React from 'react';
 import {
   ChakraProvider,
-  Box,
   Text,
   Link,
   VStack,
-  Grid,
   theme,
   Icon,
   HStack,
@@ -62,6 +60,7 @@ export const App = () => {
     };
   }, [roomId]);
 
+  const chatBoxRef = React.useRef<HTMLDivElement>(null);
   const chatInputRef = React.useRef<HTMLInputElement>(null);
   const sendMessage = React.useCallback(
     (text: string) =>
@@ -110,9 +109,15 @@ export const App = () => {
     return grouped;
   }, [chats]);
 
+  React.useEffect(() => {
+    if (chatBoxRef?.current) {
+      chatBoxRef.current.scrollTo({ top: chatBoxRef.current.scrollHeight });
+    }
+  }, [groupedChats]);
+
   return (
     <ChakraProvider theme={theme}>
-      <VStack h='100vh' p={5} align='stretch' textAlign='center'>
+      <VStack h='100vh' p={3} spacing={4} align='stretch' textAlign='center'>
         <HStack justify='flex-end'>
           <Link
             color='teal.500'
@@ -150,43 +155,48 @@ export const App = () => {
             </Editable>
           </HStack>
         </VStack>
-        <Box
+        <VStack
+          ref={chatBoxRef}
+          py={3}
+          px={4}
           flex='1 1 auto'
-          borderColor='teal.200'
-          bgColor='gray.50'
-          borderWidth='1px'
-          borderRadius='10px'
-          p='5'
           w='100%'
+          h='100%'
           overflowY='scroll'
+          spacing={2}
+          fontSize='sm'
+          textAlign='left'
+          borderColor='teal.300'
+          bgColor='gray.50'
+          borderWidth='3px'
+          borderRadius='10px'
         >
-          <VStack spacing={2} fontSize='sm' w='100%' textAlign='left'>
-            {groupedChats.map(chat => {
-              return (
-                <HStack
-                  alignItems='flex-start'
-                  color={chat.isSelf ? 'teal.600' : 'gray.800'}
-                  key={chat.messageId}
-                  w='100%'
-                >
-                  <Avatar borderRadius='4px' mt='3px' w='40px' h='40px' name={chat.sender} />
-                  <VStack spacing='0px' alignItems='flex-start'>
-                    <HStack>
-                      <Text fontWeight='bold'>{chat.sender}</Text>
-                      <Text fontSize='11px' color='gray.600'>
-                        {new Date(chat.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </Text>
-                    </HStack>
-                    {chat.messages.map((c: any) => (
-                      <Text key={c.messageId}>{c.text}</Text>
-                    ))}
-                  </VStack>
-                </HStack>
-              );
-            })}
-            {chats.length === 0 && <Text>Waiting for chats</Text>}
-          </VStack>
-        </Box>
+          {groupedChats.map(chat => {
+            return (
+              <HStack
+                alignItems='flex-start'
+                color={chat.isSelf ? 'teal.600' : 'gray.800'}
+                key={chat.messageId}
+                w='100%'
+              >
+                <Avatar borderRadius='4px' mt='3px' w='40px' h='40px' name={chat.sender} />
+                <VStack spacing='0px' alignItems='flex-start'>
+                  <HStack>
+                    <Text fontWeight='bold'>{chat.sender}</Text>
+                    <Text fontSize='11px' color='gray.600'>
+                      {new Date(chat.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </Text>
+                  </HStack>
+                  {chat.messages.map((c: any) => (
+                    <Text key={c.messageId}>{c.text}</Text>
+                  ))}
+                </VStack>
+              </HStack>
+            );
+          })}
+
+          {chats.length === 0 && <Text>Waiting for chats</Text>}
+        </VStack>
         <Input
           flex='0 0 auto'
           disabled={connectionState !== 'connected'}
