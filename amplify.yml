@@ -14,8 +14,19 @@ frontend:
   phases:
     build:
       commands:
-        - echo "TODO write WS url to web/config.mjs"
+        - cd webapp
+        - yarn install
+        - yarn build
   artifacts:
     files:
       - '**/*'
-    baseDirectory: web
+    baseDirectory: build
+# frontend:
+#   phases:
+#     build:
+#       commands:
+#         - echo "TODO write WS url to web/config.mjs"
+#   artifacts:
+#     files:
+#       - '**/*'
+#     baseDirectory: web
