@@ -34,6 +34,7 @@ exports.handler = async function ws(event) {
             sentAt,
             serverReceivedAt: timestamp,
             connectionId,
+            isSelf: conn.connectionId === connectionId,
           },
         });
         return res;
