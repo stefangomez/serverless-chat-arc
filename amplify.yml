@@ -20,7 +20,7 @@ frontend:
   artifacts:
     files:
       - '**/*'
-    baseDirectory: build
+    baseDirectory: webapp/build
 # frontend:
 #   phases:
 #     build:
