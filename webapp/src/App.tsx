@@ -4,7 +4,6 @@ import {
   Text,
   Link,
   VStack,
-  theme,
   Icon,
   HStack,
   Heading,
@@ -14,11 +13,31 @@ import {
   Input,
   Badge,
   Avatar,
+  useColorMode,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import { ColorModeSwitcher } from './ColorModeSwitcher';
 import { ImGithub } from 'react-icons/im';
 
 const DEFAULT_USERNAME = 'anon' + Math.floor(Math.random() * 10000);
+const COLORS = {
+  light: {
+    chatBorder: 'teal.300',
+    chatBg: 'gray.50',
+    editableBg: 'teal.100',
+    chatText: 'gray.800',
+    chatTextSelf: 'teal.600',
+    timestamp: 'gray.600',
+  },
+  dark: {
+    chatBorder: 'teal.600',
+    chatBg: 'gray.900',
+    editableBg: 'teal.500',
+    chatText: 'gray.100',
+    chatTextSelf: 'teal.400',
+    timestamp: 'gray.400',
+  },
+};
 
 export const App = () => {
   const [connection, setConnection] = React.useState<any>({ socket: null, state: 'connecting' });
@@ -51,12 +70,12 @@ export const App = () => {
     };
 
     newWsConn.onclose = () => {
-      setConnection({ socket: null, state: 'closed' });
+      setConnection({ socket: null, state: 'disconnected' });
     };
 
     return () => {
       newWsConn.close();
-      setConnection({ socket: null, state: 'closed' });
+      setConnection({ socket: null, state: 'disconnected' });
     };
   }, [roomId]);
 
@@ -115,105 +134,108 @@ export const App = () => {
     }
   }, [groupedChats]);
 
-  return (
-    <ChakraProvider theme={theme}>
-      <VStack
-        css={{ height: ['100vh', '-webkit-fill-available'], width: ['100vw', '-webkit-fill-available'] }}
-        p={3}
-        spacing={4}
-        align='stretch'
-        textAlign='center'
-        pos='fixed'
-        top='0'
-        left='0'
-      >
-        <HStack justify='flex-end'>
-          <Link
-            color='teal.500'
-            href='https://github.com/stefangomez/serverless-chat-arc'
-            fontSize='md'
-            target='_blank'
-            rel='noopener noreferrer'
-          >
-            <HStack>
-              <Icon as={ImGithub} />
-              <Text>GitHub</Text>
-            </HStack>
-          </Link>
-          <ColorModeSwitcher />
-        </HStack>
-        <VStack spacing={2}>
-          <Heading size='lg'>Serverless Chat App Demo</Heading>
-          <HStack>
-            <Badge colorScheme={connectionStateColor}>{connectionState.toUpperCase()}</Badge>
-            <Heading size='sm' as='h3'>
-              Current Room:
-            </Heading>
-            <Editable fontSize='sm' onSubmit={onRoomChange} defaultValue={roomId}>
-              <EditablePreview cursor='pointer' px='2' bgColor='teal.100' />
-              <EditableInput />
-            </Editable>
-          </HStack>
-          <HStack alignContent='flex-start'>
-            <Heading size='xs' as='h3'>
-              Current Username:
-            </Heading>
-            <Editable fontSize='xs' onSubmit={onUsernameChange} defaultValue={username}>
-              <EditablePreview cursor='pointer' px='2' bgColor='teal.100' />
-              <EditableInput />
-            </Editable>
-          </HStack>
-        </VStack>
-        <VStack
-          ref={chatBoxRef}
-          py={3}
-          px={4}
-          flex='1 1 auto'
-          w='100%'
-          h='100%'
-          overflowY='scroll'
-          spacing={2}
-          fontSize='sm'
-          textAlign='left'
-          borderColor='teal.300'
-          bgColor='gray.50'
-          borderWidth='3px'
-          borderRadius='10px'
-        >
-          {groupedChats.map(chat => {
-            return (
-              <HStack
-                alignItems='flex-start'
-                color={chat.isSelf ? 'teal.600' : 'gray.800'}
-                key={chat.messageId}
-                w='100%'
-              >
-                <Avatar borderRadius='4px' mt='3px' w='40px' h='40px' name={chat.sender} />
-                <VStack spacing='0px' alignItems='flex-start'>
-                  <HStack>
-                    <Text fontWeight='bold'>{chat.sender}</Text>
-                    <Text fontSize='11px' color='gray.600'>
-                      {new Date(chat.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </Text>
-                  </HStack>
-                  {chat.messages.map((c: any) => (
-                    <Text key={c.messageId}>{c.text}</Text>
-                  ))}
-                </VStack>
-              </HStack>
-            );
-          })}
+  const { colorMode } = useColorMode();
+  const colors = useColorModeValue(COLORS.light, COLORS.dark);
+  console.log('colorMode', colorMode);
+  console.log('colors', colors);
 
-          {chats.length === 0 && <Text>Waiting for chats</Text>}
-        </VStack>
-        <Input
-          flex='0 0 auto'
-          disabled={connectionState !== 'connected'}
-          ref={chatInputRef}
-          onKeyUp={onChatInputKeyup}
-          placeholder='Type a message to send...'
-        />
+  return (
+    <VStack
+      css={{ height: ['100vh', '-webkit-fill-available'], width: ['100vw', '-webkit-fill-available'] }}
+      p={3}
+      spacing={4}
+      align='stretch'
+      textAlign='center'
+      pos='fixed'
+      top='0'
+      left='0'
+    >
+      <HStack justify='flex-end'>
+        <Link
+          color='teal.500'
+          href='https://github.com/stefangomez/serverless-chat-arc'
+          fontSize='md'
+          target='_blank'
+          rel='noopener noreferrer'
+        >
+          <HStack>
+            <Icon as={ImGithub} />
+            <Text>GitHub</Text>
+          </HStack>
+        </Link>
+        <ColorModeSwitcher />
+      </HStack>
+      <VStack spacing={2}>
+        <Heading size='lg'>Serverless Chat App Demo</Heading>
+        <HStack>
+          <Badge colorScheme={connectionStateColor}>{connectionState.toUpperCase()}</Badge>
+          <Heading size='sm' as='h3'>
+            Current Room:
+          </Heading>
+          <Editable fontSize='sm' onSubmit={onRoomChange} defaultValue={roomId}>
+            <EditablePreview cursor='pointer' px='2' bgColor={colors.editableBg} />
+            <EditableInput />
+          </Editable>
+        </HStack>
+        <HStack alignContent='flex-start'>
+          <Heading size='xs' as='h3'>
+            Current Username:
+          </Heading>
+          <Editable fontSize='xs' onSubmit={onUsernameChange} defaultValue={username}>
+            <EditablePreview cursor='pointer' px='2' bgColor={colors.editableBg} />
+            <EditableInput />
+          </Editable>
+        </HStack>
       </VStack>
-    </ChakraProvider>
+      <VStack
+        ref={chatBoxRef}
+        py={3}
+        px={4}
+        flex='1 1 auto'
+        w='100%'
+        h='100%'
+        overflowY='scroll'
+        spacing={2}
+        fontSize='sm'
+        textAlign='left'
+        borderColor={colors.chatBorder}
+        bgColor={colors.chatBg}
+        borderWidth='3px'
+        borderRadius='10px'
+      >
+        {groupedChats.map(chat => {
+          return (
+            <HStack
+              alignItems='flex-start'
+              color={chat.isSelf ? colors.chatTextSelf : colors.chatText}
+              key={chat.messageId}
+              w='100%'
+            >
+              <Avatar borderRadius='4px' mt='3px' w='40px' h='40px' name={chat.sender} />
+              <VStack spacing='0px' alignItems='flex-start'>
+                <HStack>
+                  <Text fontWeight='bold'>{chat.sender}</Text>
+                  <Text fontSize='11px' color={colors.timestamp}>
+                    {new Date(chat.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </Text>
+                </HStack>
+                {chat.messages.map((c: any) => (
+                  <Text key={c.messageId}>{c.text}</Text>
+                ))}
+              </VStack>
+            </HStack>
+          );
+        })}
+
+        {chats.length === 0 && <Text>Waiting for chats</Text>}
+      </VStack>
+      <Input
+        flex='0 0 auto'
+        disabled={connectionState !== 'connected'}
+        ref={chatInputRef}
+        onKeyUp={onChatInputKeyup}
+        placeholder='Type a message to send...'
+      />
+    </VStack>
   );
 };
