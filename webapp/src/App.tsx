@@ -112,90 +112,89 @@ export const App = () => {
 
   return (
     <ChakraProvider theme={theme}>
-      <Box textAlign='center' fontSize='xl'>
-        <Grid minH='100vh' p={3}>
-          <HStack h='fit-content' justifySelf='flex-end'>
-            <Link
-              color='teal.500'
-              href='https://github.com/stefangomez/serverless-chat-arc'
-              fontSize='md'
-              target='_blank'
-              rel='noopener noreferrer'
-            >
-              <HStack>
-                <Icon as={ImGithub} />
-                <Text>GitHub</Text>
-              </HStack>
-            </Link>
-            <ColorModeSwitcher />
+      <VStack h='100vh' p={5} align='stretch' textAlign='center'>
+        <HStack justify='flex-end'>
+          <Link
+            color='teal.500'
+            href='https://github.com/stefangomez/serverless-chat-arc'
+            fontSize='md'
+            target='_blank'
+            rel='noopener noreferrer'
+          >
+            <HStack>
+              <Icon as={ImGithub} />
+              <Text>GitHub</Text>
+            </HStack>
+          </Link>
+          <ColorModeSwitcher />
+        </HStack>
+        <VStack spacing={2}>
+          <Heading size='lg'>Serverless Chat App Demo</Heading>
+          <HStack>
+            <Badge colorScheme={connectionStateColor}>{connectionState.toUpperCase()}</Badge>
+            <Heading size='sm' as='h3'>
+              Current Room:
+            </Heading>
+            <Editable fontSize='sm' onSubmit={onRoomChange} defaultValue={roomId}>
+              <EditablePreview cursor='pointer' px='2' bgColor='teal.100' />
+              <EditableInput />
+            </Editable>
           </HStack>
-          <VStack spacing={2}>
-            <Heading size='lg'>Serverless Chat App Demo</Heading>
-            <HStack alignContent='flex-start'>
-              <Badge ml='1' colorScheme={connectionStateColor}>
-                {connectionState.toUpperCase()}
-              </Badge>
-              <Text fontSize='md'>Current Room: </Text>
-              <Editable onSubmit={onRoomChange} defaultValue={roomId}>
-                <EditablePreview />
-                <EditableInput />
-              </Editable>
-            </HStack>
-            <HStack alignContent='flex-start'>
-              <Text fontSize='md'>Current Username: </Text>
-              <Editable onSubmit={onUsernameChange} defaultValue={username}>
-                <EditablePreview />
-                <EditableInput />
-              </Editable>
-            </HStack>
-          </VStack>
-          <VStack spacing={2}>
-            <Box
-              h='50vmin'
-              borderColor='teal.200'
-              bgColor='gray.50'
-              borderWidth='1px'
-              borderRadius='10px'
-              p='5'
-              w='100%'
-              overflowY='scroll'
-            >
-              <VStack spacing={2} fontSize='sm' w='100%' textAlign='left'>
-                {groupedChats.map(chat => {
-                  return (
-                    <HStack
-                      alignItems='flex-start'
-                      color={chat.isSelf ? 'teal.600' : 'gray.800'}
-                      key={chat.messageId}
-                      w='100%'
-                    >
-                      <Avatar borderRadius='4px' mt='3px' w='40px' h='40px' name={chat.sender} />
-                      <VStack spacing='0px' alignItems='flex-start'>
-                        <HStack>
-                          <Text fontWeight='bold'>{chat.sender}</Text>
-                          <Text fontSize='11px' color='gray.600'>
-                            {new Date(chat.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          </Text>
-                        </HStack>
-                        {chat.messages.map((c: any) => (
-                          <Text key={c.messageId}>{c.text}</Text>
-                        ))}
-                      </VStack>
+          <HStack alignContent='flex-start'>
+            <Heading size='xs' as='h3'>
+              Current Username:
+            </Heading>
+            <Editable fontSize='xs' onSubmit={onUsernameChange} defaultValue={username}>
+              <EditablePreview cursor='pointer' px='2' bgColor='teal.100' />
+              <EditableInput />
+            </Editable>
+          </HStack>
+        </VStack>
+        <Box
+          flex='1 1 auto'
+          borderColor='teal.200'
+          bgColor='gray.50'
+          borderWidth='1px'
+          borderRadius='10px'
+          p='5'
+          w='100%'
+          overflowY='scroll'
+        >
+          <VStack spacing={2} fontSize='sm' w='100%' textAlign='left'>
+            {groupedChats.map(chat => {
+              return (
+                <HStack
+                  alignItems='flex-start'
+                  color={chat.isSelf ? 'teal.600' : 'gray.800'}
+                  key={chat.messageId}
+                  w='100%'
+                >
+                  <Avatar borderRadius='4px' mt='3px' w='40px' h='40px' name={chat.sender} />
+                  <VStack spacing='0px' alignItems='flex-start'>
+                    <HStack>
+                      <Text fontWeight='bold'>{chat.sender}</Text>
+                      <Text fontSize='11px' color='gray.600'>
+                        {new Date(chat.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </Text>
                     </HStack>
-                  );
-                })}
-                {chats.length === 0 && <Text>Waiting for chats</Text>}
-              </VStack>
-            </Box>
-            <Input
-              disabled={connectionState !== 'connected'}
-              ref={chatInputRef}
-              onKeyUp={onChatInputKeyup}
-              placeholder='Type a message to send...'
-            />
+                    {chat.messages.map((c: any) => (
+                      <Text key={c.messageId}>{c.text}</Text>
+                    ))}
+                  </VStack>
+                </HStack>
+              );
+            })}
+            {chats.length === 0 && <Text>Waiting for chats</Text>}
           </VStack>
-        </Grid>
-      </Box>
+        </Box>
+        <Input
+          flex='0 0 auto'
+          disabled={connectionState !== 'connected'}
+          ref={chatInputRef}
+          onKeyUp={onChatInputKeyup}
+          placeholder='Type a message to send...'
+        />
+      </VStack>
     </ChakraProvider>
   );
 };
