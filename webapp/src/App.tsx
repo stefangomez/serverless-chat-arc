@@ -1,6 +1,5 @@
 import * as React from 'react';
 import {
-  ChakraProvider,
   Text,
   Link,
   VStack,
@@ -13,7 +12,6 @@ import {
   Input,
   Badge,
   Avatar,
-  useColorMode,
   useColorModeValue,
 } from '@chakra-ui/react';
 import { ColorModeSwitcher } from './ColorModeSwitcher';
@@ -134,10 +132,7 @@ export const App = () => {
     }
   }, [groupedChats]);
 
-  const { colorMode } = useColorMode();
   const colors = useColorModeValue(COLORS.light, COLORS.dark);
-  console.log('colorMode', colorMode);
-  console.log('colors', colors);
 
   return (
     <VStack
