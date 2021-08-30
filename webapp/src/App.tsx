@@ -117,7 +117,7 @@ export const App = () => {
 
   return (
     <ChakraProvider theme={theme}>
-      <VStack h='100vh' minH='-webkit-fit-available' p={3} spacing={4} align='stretch' textAlign='center'>
+      <VStack h='100vh' minHeight='stretch' p={3} spacing={4} align='stretch' textAlign='center'>
         <HStack justify='flex-end'>
           <Link
             color='teal.500'
