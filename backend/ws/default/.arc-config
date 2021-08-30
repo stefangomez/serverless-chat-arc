@@ -1,4 +1,4 @@
 @aws
 # memory 1152
-# timeout 30
+timeout 20
 # concurrency 1
