@@ -1,23 +1,28 @@
 import * as React from 'react';
+
 import {
-  Text,
-  Link,
-  VStack,
-  Icon,
+  Avatar,
+  Badge,
+  Editable,
+  EditableInput,
+  EditablePreview,
   HStack,
   Heading,
-  Editable,
-  EditablePreview,
-  EditableInput,
-  Input,
-  Badge,
-  Avatar,
-  useColorModeValue,
+  Icon,
   IconButton,
+  Input,
+  Link,
+  Text,
+  VStack,
+  useColorModeValue,
 } from '@chakra-ui/react';
+
 import { ColorModeSwitcher } from './ColorModeSwitcher';
 import { ImGithub } from 'react-icons/im';
 import { MdRefresh } from 'react-icons/md';
+import imRcvFx from './assets/imrcv.wav';
+import imSndFx from './assets/imsend.wav';
+import useSound from 'use-sound';
 
 const URL_ROOM_ID = window.location.pathname.slice(1) || 'default';
 const DEFAULT_USERNAME = 'anon' + Math.floor(Math.random() * 10000);
@@ -65,10 +70,12 @@ const createWebsocketConnection = (roomId: string, setConnection: any, setChats:
 
 export const App = () => {
   const [connection, setConnection] = React.useState<any>({ socket: null, state: 'disconnected' });
-
   const [username, setUsername] = React.useState(DEFAULT_USERNAME);
   const [chats, setChats] = React.useState<any[]>([]);
   const [roomId, setRoomId] = React.useState<string>(URL_ROOM_ID);
+  const [playRcvFx] = useSound(imRcvFx);
+  const [playSndFx] = useSound(imSndFx);
+
   const onRoomChange = React.useCallback(
     (newRoomId: string) => {
       if (newRoomId && newRoomId !== roomId) {
@@ -144,6 +151,11 @@ export const App = () => {
   React.useEffect(() => {
     if (chatBoxRef?.current) {
       chatBoxRef.current.scrollTo({ top: chatBoxRef.current.scrollHeight });
+      if (groupedChats.length && groupedChats[groupedChats.length - 1].isSelf) {
+        playSndFx();
+      } else {
+        playRcvFx();
+      }
     }
   }, [groupedChats]);
 

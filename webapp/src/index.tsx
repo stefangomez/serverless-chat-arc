@@ -1,10 +1,13 @@
 import 'focus-visible/dist/focus-visible';
-import { ChakraProvider, ColorModeScript, theme } from '@chakra-ui/react';
+
 import * as React from 'react';
-import ReactDOM from 'react-dom';
-import { App } from './App';
-import reportWebVitals from './reportWebVitals';
 import * as serviceWorker from './serviceWorker';
+
+import { ChakraProvider, ColorModeScript, theme } from '@chakra-ui/react';
+
+import { App } from './App';
+import ReactDOM from 'react-dom';
+import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
   <React.StrictMode>
