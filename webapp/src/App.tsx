@@ -75,7 +75,7 @@ const createWebsocketConnection = (roomId: string, setConnection: any, setChats:
   return newWsConn;
 };
 
-const ChatWindow = React.memo(({ chats, colors, onUsernameChange }: any) => {
+const ChatWindow = React.memo(({ chats, colors, onUsernameChange, chatInputRef }: any) => {
   const [initialUsernameSet, setInitialUsernameSet] = React.useState<boolean>(false);
   const usernameInputRef = React.useRef<HTMLInputElement>(null);
   const chatBoxRef = React.useRef<HTMLDivElement>(null);
@@ -117,6 +117,16 @@ const ChatWindow = React.memo(({ chats, colors, onUsernameChange }: any) => {
       chatBoxRef.current.scrollTo({ top: chatBoxRef.current.scrollHeight });
     }
   }, [groupedChats, playSndFx, playRcvFx]);
+
+  const onUsernameInputKeyup = React.useCallback(
+    (e: any) => {
+      if (e.key === 'Enter') {
+        onSetUsername();
+      }
+    },
+    [onSetUsername]
+  );
+
   return (
     <>
       <VStack
@@ -164,7 +174,7 @@ const ChatWindow = React.memo(({ chats, colors, onUsernameChange }: any) => {
       </VStack>
       <Modal
         initialFocusRef={usernameInputRef}
-        // finalFocusRef={finalRef}
+        finalFocusRef={chatInputRef}
         isOpen={!initialUsernameSet}
         onClose={() => setInitialUsernameSet(false)}
       >
@@ -172,7 +182,7 @@ const ChatWindow = React.memo(({ chats, colors, onUsernameChange }: any) => {
         <ModalContent>
           <ModalHeader>Set your chat username</ModalHeader>
           <ModalBody>
-            <Input ref={usernameInputRef} placeholder={DEFAULT_USERNAME} />
+            <Input ref={usernameInputRef} placeholder={DEFAULT_USERNAME} onKeyUp={onUsernameInputKeyup} />
           </ModalBody>
 
           <ModalFooter>
@@ -217,6 +227,7 @@ export const App = () => {
   );
   const onUsernameChange = React.useCallback((newUsername: string) => {
     setUsername(newUsername || DEFAULT_USERNAME);
+    chatInputRef?.current?.focus();
   }, []);
   // const onDisconnect = React.useCallback(() => connection.socket.close(), [connection]);
   const onReconnect = React.useCallback(() => connectToWs(roomId), [roomId]);
@@ -227,6 +238,12 @@ export const App = () => {
     connectToWs(roomId);
     document.title = `Serverless Chat Room: ${roomId}`;
   }, [roomId]);
+
+  React.useEffect(() => {
+    if (connection?.state === 'connected') {
+      chatInputRef?.current?.focus();
+    }
+  }, [connection]);
 
   const chatInputRef = React.useRef<HTMLInputElement>(null);
   const sendMessage = React.useCallback(
@@ -312,9 +329,10 @@ export const App = () => {
           <CurrentUsername currentUsername={username} onUsernameChange={onUsernameChange} colors={colors} />
         </HStack>
       </VStack>
-      <ChatWindow chats={chats} colors={colors} onUsernameChange={onUsernameChange} />
+      <ChatWindow chats={chats} colors={colors} onUsernameChange={onUsernameChange} chatInputRef={chatInputRef} />
       <Input
         flex='0 0 auto'
+        // autoFocus={connectionState === 'connected'}
         disabled={connectionState !== 'connected'}
         ref={chatInputRef}
         onKeyUp={onChatInputKeyup}
