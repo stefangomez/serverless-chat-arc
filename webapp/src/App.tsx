@@ -68,7 +68,8 @@ const createWebsocketConnection = (roomId: string, setConnection: any, setChats:
   return newWsConn;
 };
 
-const ChatWindow = React.memo(({ chats, colors, chatBoxRef }: any) => {
+const ChatWindow = React.memo(({ chats, colors }: any) => {
+  const chatBoxRef = React.useRef<HTMLDivElement>(null);
   const [playRcvFx] = useSound(imRcvFx);
   const [playSndFx] = useSound(imSndFx);
   const groupedChats: any[] = React.useMemo(() => {
@@ -100,7 +101,7 @@ const ChatWindow = React.memo(({ chats, colors, chatBoxRef }: any) => {
       }
       chatBoxRef.current.scrollTo({ top: chatBoxRef.current.scrollHeight });
     }
-  }, [chatBoxRef, groupedChats, playSndFx, playRcvFx]);
+  }, [groupedChats, playSndFx, playRcvFx]);
   return (
     <VStack
       ref={chatBoxRef}
@@ -177,7 +178,6 @@ export const App = () => {
     document.title = `Serverless Chat Room: ${roomId}`;
   }, [roomId]);
 
-  const chatBoxRef = React.useRef<HTMLDivElement>(null);
   const chatInputRef = React.useRef<HTMLInputElement>(null);
   const sendMessage = React.useCallback(
     (text: string) => {
@@ -267,7 +267,7 @@ export const App = () => {
           </Editable>
         </HStack>
       </VStack>
-      <ChatWindow chats={chats} colors={colors} chatBoxRef={chatBoxRef} />
+      <ChatWindow chats={chats} colors={colors} />
       <Input
         flex='0 0 auto'
         disabled={connectionState !== 'connected'}
