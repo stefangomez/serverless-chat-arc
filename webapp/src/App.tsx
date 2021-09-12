@@ -73,8 +73,6 @@ export const App = () => {
   const [username, setUsername] = React.useState(DEFAULT_USERNAME);
   const [chats, setChats] = React.useState<any[]>([]);
   const [roomId, setRoomId] = React.useState<string>(URL_ROOM_ID);
-  // const [playRcvFx] = useSound('./assets/imrcv.wav');
-  // const [playSndFx] = useSound('./assets/imsend.wav');
   const [playRcvFx] = useSound(imRcvFx);
   const [playSndFx] = useSound(imSndFx);
   console.log('connection', connection);
@@ -102,6 +100,7 @@ export const App = () => {
 
   React.useEffect(() => {
     connectToWs(roomId);
+    document.title = `Serverless Chat Room: ${roomId}`;
   }, [roomId]);
 
   const chatBoxRef = React.useRef<HTMLDivElement>(null);
