@@ -68,18 +68,92 @@ const createWebsocketConnection = (roomId: string, setConnection: any, setChats:
   return newWsConn;
 };
 
+const ChatWindow = React.memo(({ chats, colors, chatBoxRef }: any) => {
+  const [playRcvFx] = useSound(imRcvFx);
+  const [playSndFx] = useSound(imSndFx);
+  const groupedChats: any[] = React.useMemo(() => {
+    let lastChat: any = null;
+    const grouped = [];
+    chats.forEach((chat: any) => {
+      if (lastChat && lastChat.connectionId === chat.connectionId) {
+        lastChat.sender = chat.sender;
+        lastChat.messages = [...(lastChat?.messages || []), chat];
+      } else if (lastChat) {
+        grouped.push(lastChat);
+        lastChat = { ...chat, messages: [chat] };
+      } else {
+        lastChat = { ...chat, messages: [chat] };
+      }
+    });
+    if (lastChat) {
+      grouped.push(lastChat);
+    }
+    return grouped;
+  }, [chats]);
+
+  React.useEffect(() => {
+    if (chatBoxRef?.current) {
+      if (groupedChats.length && groupedChats[groupedChats.length - 1].isSelf) {
+        playSndFx();
+      } else if (groupedChats.length) {
+        playRcvFx();
+      }
+      chatBoxRef.current.scrollTo({ top: chatBoxRef.current.scrollHeight });
+    }
+  }, [chatBoxRef, groupedChats, playSndFx, playRcvFx]);
+  return (
+    <VStack
+      ref={chatBoxRef}
+      py={3}
+      px={4}
+      flex='1 1 auto'
+      w='100%'
+      h='100%'
+      // overflowX='hidden'
+      overflowY='scroll'
+      spacing={2}
+      fontSize='sm'
+      textAlign='left'
+      borderColor={colors.chatBorder}
+      bgColor={colors.chatBg}
+      borderWidth='3px'
+      borderRadius='10px'
+    >
+      {groupedChats.map(chat => {
+        return (
+          <HStack
+            alignItems='flex-start'
+            color={chat.isSelf ? colors.chatTextSelf : colors.chatText}
+            key={chat.messageId}
+            w='100%'
+          >
+            <Avatar borderRadius='4px' mt='3px' w='40px' h='40px' name={chat.sender} />
+            <VStack spacing='0px' alignItems='flex-start'>
+              <HStack>
+                <Text fontWeight='bold'>{chat.sender}</Text>
+                <Text fontSize='11px' color={colors.timestamp}>
+                  {new Date(chat.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </Text>
+              </HStack>
+              {chat.messages.map((c: any) => (
+                <Text key={c.messageId}>{c.text.replace(/ /g, '\u00a0')}</Text>
+              ))}
+            </VStack>
+          </HStack>
+        );
+      })}
+
+      {groupedChats.length === 0 && <Text>Waiting for chats</Text>}
+    </VStack>
+  );
+});
+
 export const App = () => {
   const [connection, setConnection] = React.useState<any>({ socket: null, state: 'disconnected' });
   const [username, setUsername] = React.useState(DEFAULT_USERNAME);
   const [chats, setChats] = React.useState<any[]>([]);
   const [roomId, setRoomId] = React.useState<string>(URL_ROOM_ID);
-  const [playRcvFx] = useSound(imRcvFx);
-  const [playSndFx] = useSound(imSndFx);
-  console.log('connection', connection);
-  console.log('username', username);
-  console.log('roomId', roomId);
-  console.log('chats', chats);
-  // console.log('playSndFx', playSndFx.toString());
+  // console.log('connection', connection);
   const onRoomChange = React.useCallback(
     (newRoomId: string) => {
       if (newRoomId && newRoomId !== roomId) {
@@ -134,37 +208,6 @@ export const App = () => {
     }
     return 'red';
   }, [connectionState]);
-
-  const groupedChats = React.useMemo(() => {
-    let lastChat: any = null;
-    const grouped = [];
-    chats.forEach(chat => {
-      if (lastChat && lastChat.connectionId === chat.connectionId) {
-        lastChat.sender = chat.sender;
-        lastChat.messages = [...(lastChat?.messages || []), chat];
-      } else if (lastChat) {
-        grouped.push(lastChat);
-        lastChat = { ...chat, messages: [chat] };
-      } else {
-        lastChat = { ...chat, messages: [chat] };
-      }
-    });
-    if (lastChat) {
-      grouped.push(lastChat);
-    }
-    return grouped;
-  }, [chats]);
-
-  React.useEffect(() => {
-    if (chatBoxRef?.current) {
-      if (groupedChats.length && groupedChats[groupedChats.length - 1].isSelf) {
-        playSndFx();
-      } else if (groupedChats.length) {
-        playRcvFx();
-      }
-      chatBoxRef.current.scrollTo({ top: chatBoxRef.current.scrollHeight });
-    }
-  }, [groupedChats, playSndFx, playRcvFx]);
 
   const colors = useColorModeValue(COLORS.light, COLORS.dark);
 
@@ -224,49 +267,7 @@ export const App = () => {
           </Editable>
         </HStack>
       </VStack>
-      <VStack
-        ref={chatBoxRef}
-        py={3}
-        px={4}
-        flex='1 1 auto'
-        w='100%'
-        h='100%'
-        // overflowX='hidden'
-        overflowY='scroll'
-        spacing={2}
-        fontSize='sm'
-        textAlign='left'
-        borderColor={colors.chatBorder}
-        bgColor={colors.chatBg}
-        borderWidth='3px'
-        borderRadius='10px'
-      >
-        {groupedChats.map(chat => {
-          return (
-            <HStack
-              alignItems='flex-start'
-              color={chat.isSelf ? colors.chatTextSelf : colors.chatText}
-              key={chat.messageId}
-              w='100%'
-            >
-              <Avatar borderRadius='4px' mt='3px' w='40px' h='40px' name={chat.sender} />
-              <VStack spacing='0px' alignItems='flex-start'>
-                <HStack>
-                  <Text fontWeight='bold'>{chat.sender}</Text>
-                  <Text fontSize='11px' color={colors.timestamp}>
-                    {new Date(chat.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </Text>
-                </HStack>
-                {chat.messages.map((c: any) => (
-                  <Text key={c.messageId}>{c.text.replace(/ /g, '\u00a0')}</Text>
-                ))}
-              </VStack>
-            </HStack>
-          );
-        })}
-
-        {chats.length === 0 && <Text>Waiting for chats</Text>}
-      </VStack>
+      <ChatWindow chats={chats} colors={colors} chatBoxRef={chatBoxRef} />
       <Input
         flex='0 0 auto'
         disabled={connectionState !== 'connected'}
