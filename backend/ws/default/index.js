@@ -21,6 +21,14 @@ exports.handler = async function ws(event) {
   });
   console.log('queryResp', queryResp);
   const connections = queryResp?.Items || [];
+  if (message.type === 'user_join') {
+    await data.chatapp.update({
+      Key: { id: `room#${roomId}`, sortKey: `listeners#${connectionId}` },
+      UpdateExpression: 'set #username = :username',
+      ExpressionAttributeNames: { username: 'username' },
+      ExpressionAttributeValues: { username },
+    });
+  }
   await Promise.all(
     connections.map(async conn => {
       try {
