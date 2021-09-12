@@ -31,9 +31,10 @@ const sendLeaveMessages = async (messageId, connectionId, roomId, leftUsername) 
         });
         return res;
       } catch (e) {
-        // TODO: cleanup GONE connections
         console.log(`error sending message to connectionId: ${connectionId}`);
         console.log(e);
+        await data.chatapp.delete({ id: conn.id, sortKey: conn.sortKey });
+
         return null;
       }
     })
