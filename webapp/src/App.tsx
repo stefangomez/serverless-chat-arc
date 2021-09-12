@@ -3,6 +3,7 @@ import * as React from 'react';
 import {
   Avatar,
   Badge,
+  Button,
   Editable,
   EditableInput,
   EditablePreview,
@@ -12,6 +13,12 @@ import {
   IconButton,
   Input,
   Link,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
   Text,
   VStack,
   useColorModeValue,
@@ -68,7 +75,9 @@ const createWebsocketConnection = (roomId: string, setConnection: any, setChats:
   return newWsConn;
 };
 
-const ChatWindow = React.memo(({ chats, colors }: any) => {
+const ChatWindow = React.memo(({ chats, colors, onUsernameChange }: any) => {
+  const [initialUsernameSet, setInitialUsernameSet] = React.useState<boolean>(false);
+  const usernameInputRef = React.useRef<HTMLInputElement>(null);
   const chatBoxRef = React.useRef<HTMLDivElement>(null);
   const [playRcvFx] = useSound(imRcvFx);
   const [playSndFx] = useSound(imSndFx);
@@ -92,6 +101,12 @@ const ChatWindow = React.memo(({ chats, colors }: any) => {
     return grouped;
   }, [chats]);
 
+  const onSetUsername = React.useCallback(() => {
+    const newUsername = usernameInputRef?.current?.value?.trim();
+    onUsernameChange(newUsername);
+    setInitialUsernameSet(true);
+  }, [onUsernameChange, usernameInputRef]);
+
   React.useEffect(() => {
     if (chatBoxRef?.current) {
       if (groupedChats.length && groupedChats[groupedChats.length - 1].isSelf) {
@@ -103,49 +118,84 @@ const ChatWindow = React.memo(({ chats, colors }: any) => {
     }
   }, [groupedChats, playSndFx, playRcvFx]);
   return (
-    <VStack
-      ref={chatBoxRef}
-      py={3}
-      px={4}
-      flex='1 1 auto'
-      w='100%'
-      h='100%'
-      // overflowX='hidden'
-      overflowY='scroll'
-      spacing={2}
-      fontSize='sm'
-      textAlign='left'
-      borderColor={colors.chatBorder}
-      bgColor={colors.chatBg}
-      borderWidth='3px'
-      borderRadius='10px'
-    >
-      {groupedChats.map(chat => {
-        return (
-          <HStack
-            alignItems='flex-start'
-            color={chat.isSelf ? colors.chatTextSelf : colors.chatText}
-            key={chat.messageId}
-            w='100%'
-          >
-            <Avatar borderRadius='4px' mt='3px' w='40px' h='40px' name={chat.sender} />
-            <VStack spacing='0px' alignItems='flex-start'>
-              <HStack>
-                <Text fontWeight='bold'>{chat.sender}</Text>
-                <Text fontSize='11px' color={colors.timestamp}>
-                  {new Date(chat.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </Text>
-              </HStack>
-              {chat.messages.map((c: any) => (
-                <Text key={c.messageId}>{c.text.replace(/ /g, '\u00a0')}</Text>
-              ))}
-            </VStack>
-          </HStack>
-        );
-      })}
+    <>
+      <VStack
+        ref={chatBoxRef}
+        py={3}
+        px={4}
+        flex='1 1 auto'
+        w='100%'
+        h='100%'
+        // overflowX='hidden'
+        overflowY='scroll'
+        spacing={2}
+        fontSize='sm'
+        textAlign='left'
+        borderColor={colors.chatBorder}
+        bgColor={colors.chatBg}
+        borderWidth='3px'
+        borderRadius='10px'
+      >
+        {groupedChats.map(chat => {
+          return (
+            <HStack
+              alignItems='flex-start'
+              color={chat.isSelf ? colors.chatTextSelf : colors.chatText}
+              key={chat.messageId}
+              w='100%'
+            >
+              <Avatar borderRadius='4px' mt='3px' w='40px' h='40px' name={chat.sender} />
+              <VStack spacing='0px' alignItems='flex-start'>
+                <HStack>
+                  <Text fontWeight='bold'>{chat.sender}</Text>
+                  <Text fontSize='11px' color={colors.timestamp}>
+                    {new Date(chat.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </Text>
+                </HStack>
+                {chat.messages.map((c: any) => (
+                  <Text key={c.messageId}>{c.text.replace(/ /g, '\u00a0')}</Text>
+                ))}
+              </VStack>
+            </HStack>
+          );
+        })}
 
-      {groupedChats.length === 0 && <Text>Waiting for chats</Text>}
-    </VStack>
+        {groupedChats.length === 0 && <Text>Waiting for chats</Text>}
+      </VStack>
+      <Modal
+        initialFocusRef={usernameInputRef}
+        // finalFocusRef={finalRef}
+        isOpen={!initialUsernameSet}
+        onClose={() => setInitialUsernameSet(false)}
+      >
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Set your chat username</ModalHeader>
+          <ModalBody>
+            <Input ref={usernameInputRef} placeholder={DEFAULT_USERNAME} />
+          </ModalBody>
+
+          <ModalFooter>
+            <Button colorScheme='blue' onClick={onSetUsername}>
+              Set Username
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </>
+  );
+});
+
+const CurrentUsername = React.memo(({ currentUsername, onUsernameChange, colors }: any) => {
+  const [username, setUsername] = React.useState<string>(currentUsername);
+  React.useEffect(() => {
+    setUsername(currentUsername);
+  }, [currentUsername]);
+  return (
+    <Editable fontSize='xs' onSubmit={onUsernameChange} value={username} onChange={val => setUsername(val)}>
+      <EditablePreview cursor='pointer' px='2' bgColor={colors.editableBg} />
+      <EditableInput />
+    </Editable>
   );
 });
 
@@ -259,13 +309,10 @@ export const App = () => {
           <Heading size='xs' as='h3'>
             Current Username:
           </Heading>
-          <Editable fontSize='xs' onSubmit={onUsernameChange} defaultValue={username}>
-            <EditablePreview cursor='pointer' px='2' bgColor={colors.editableBg} />
-            <EditableInput />
-          </Editable>
+          <CurrentUsername currentUsername={username} onUsernameChange={onUsernameChange} colors={colors} />
         </HStack>
       </VStack>
-      <ChatWindow chats={chats} colors={colors} />
+      <ChatWindow chats={chats} colors={colors} onUsernameChange={onUsernameChange} />
       <Input
         flex='0 0 auto'
         disabled={connectionState !== 'connected'}
