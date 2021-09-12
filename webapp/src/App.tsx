@@ -180,10 +180,8 @@ export const App = () => {
 
   const chatInputRef = React.useRef<HTMLInputElement>(null);
   const sendMessage = React.useCallback(
-    (text: string) => {
-      connection?.socket?.send(JSON.stringify({ text, roomId, sentAt: new Date().getTime(), username }));
-      // playSndFx();
-    },
+    (text: string) =>
+      text && connection?.socket?.send(JSON.stringify({ text, roomId, sentAt: new Date().getTime(), username })),
     [connection, roomId, username]
   );
   const onChatInputKeyup = React.useCallback(
