@@ -25,8 +25,8 @@ exports.handler = async function ws(event) {
     await data.chatapp.update({
       Key: { id: `room#${roomId}`, sortKey: `listeners#${connectionId}` },
       UpdateExpression: 'set #username = :username',
-      ExpressionAttributeNames: { username: 'username' },
-      ExpressionAttributeValues: { username },
+      ExpressionAttributeNames: { '#username': 'username' },
+      ExpressionAttributeValues: { ':username': username },
     });
   }
   await Promise.all(
