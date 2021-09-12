@@ -28,6 +28,7 @@ exports.handler = async function ws(event) {
           id: conn.connectionId,
           payload: {
             messageId,
+            type: message.type || 'message',
             text: message.text,
             sender: username,
             roomId,
