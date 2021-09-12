@@ -35,6 +35,7 @@ exports.handler = async function ws(event) {
         const res = await arc.ws.send({
           id: conn.connectionId,
           payload: {
+            numUsers: connections.length,
             messageId,
             type: message.type || 'message',
             text: message.text,
