@@ -55,10 +55,17 @@ exports.handler = async function ws(event, other) {
     ExpressionAttributeValues: { ':sortKey': `listeners#${connectionId}` },
   });
   console.log('queryResp', queryResp);
-  queryResp?.Items.forEach(async dbObj => {
-    await data.chatapp.delete({ id: dbObj.id, sortKey: dbObj.sortKey });
-    await sendLeaveMessages(messageId, connectionId, dbObj.id.split('room#')[1], dbObj.username || dbObj.connectionId);
-  });
+  await Promise.all(
+    queryResp?.Items.map(async dbObj => {
+      await data.chatapp.delete({ id: dbObj.id, sortKey: dbObj.sortKey });
+      await sendLeaveMessages(
+        messageId,
+        connectionId,
+        dbObj.id.split('room#')[1],
+        dbObj.username || dbObj.connectionId
+      );
+    })
+  );
 
   return { statusCode: 200 };
 };
