@@ -136,7 +136,6 @@ const ChatWindow = React.memo(({ chats, colors, onUsernameChange, chatInputRef }
         flex='1 1 auto'
         w='100%'
         h='100%'
-        // overflowX='hidden'
         overflowY='scroll'
         spacing={2}
         fontSize='sm'
@@ -163,7 +162,7 @@ const ChatWindow = React.memo(({ chats, colors, onUsernameChange, chatInputRef }
                   </Text>
                 </HStack>
                 {chat.messages.map((c: any) => (
-                  <Text key={c.messageId}>{c.text.replace(/ /g, '\u00a0')}</Text>
+                  <Text key={c.messageId}>{c.text.replace(/  /g, ' \u00a0')}</Text>
                 ))}
               </VStack>
             </HStack>
