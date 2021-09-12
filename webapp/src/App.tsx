@@ -158,12 +158,12 @@ export const App = () => {
 
   React.useEffect(() => {
     if (chatBoxRef?.current) {
-      chatBoxRef.current.scrollTo({ top: chatBoxRef.current.scrollHeight });
       if (groupedChats.length && groupedChats[groupedChats.length - 1].isSelf) {
         playSndFx();
       } else if (groupedChats.length) {
         playRcvFx();
       }
+      chatBoxRef.current.scrollTo({ top: chatBoxRef.current.scrollHeight });
     }
   }, [groupedChats, playSndFx, playRcvFx]);
 
