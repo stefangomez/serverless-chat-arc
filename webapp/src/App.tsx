@@ -73,9 +73,15 @@ export const App = () => {
   const [username, setUsername] = React.useState(DEFAULT_USERNAME);
   const [chats, setChats] = React.useState<any[]>([]);
   const [roomId, setRoomId] = React.useState<string>(URL_ROOM_ID);
+  // const [playRcvFx] = useSound('./assets/imrcv.wav');
+  // const [playSndFx] = useSound('./assets/imsend.wav');
   const [playRcvFx] = useSound(imRcvFx);
   const [playSndFx] = useSound(imSndFx);
-
+  console.log('connection', connection);
+  console.log('username', username);
+  console.log('roomId', roomId);
+  console.log('chats', chats);
+  // console.log('playSndFx', playSndFx.toString());
   const onRoomChange = React.useCallback(
     (newRoomId: string) => {
       if (newRoomId && newRoomId !== roomId) {
@@ -101,8 +107,10 @@ export const App = () => {
   const chatBoxRef = React.useRef<HTMLDivElement>(null);
   const chatInputRef = React.useRef<HTMLInputElement>(null);
   const sendMessage = React.useCallback(
-    (text: string) =>
-      connection?.socket?.send(JSON.stringify({ text, roomId, sentAt: new Date().getTime(), username })),
+    (text: string) => {
+      connection?.socket?.send(JSON.stringify({ text, roomId, sentAt: new Date().getTime(), username }));
+      // playSndFx();
+    },
     [connection, roomId, username]
   );
   const onChatInputKeyup = React.useCallback(
@@ -153,11 +161,11 @@ export const App = () => {
       chatBoxRef.current.scrollTo({ top: chatBoxRef.current.scrollHeight });
       if (groupedChats.length && groupedChats[groupedChats.length - 1].isSelf) {
         playSndFx();
-      } else {
+      } else if (groupedChats.length) {
         playRcvFx();
       }
     }
-  }, [groupedChats]);
+  }, [groupedChats, playSndFx, playRcvFx]);
 
   const colors = useColorModeValue(COLORS.light, COLORS.dark);
 
