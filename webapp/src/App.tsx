@@ -13,10 +13,13 @@ import {
   Badge,
   Avatar,
   useColorModeValue,
+  IconButton,
 } from '@chakra-ui/react';
 import { ColorModeSwitcher } from './ColorModeSwitcher';
 import { ImGithub } from 'react-icons/im';
+import { MdRefresh } from 'react-icons/md';
 
+const URL_ROOM_ID = window.location.pathname.slice(1) || 'default';
 const DEFAULT_USERNAME = 'anon' + Math.floor(Math.random() * 10000);
 const COLORS = {
   light: {
@@ -37,44 +40,55 @@ const COLORS = {
   },
 };
 
+const createWebsocketConnection = (roomId: string, setConnection: any, setChats: any) => {
+  setConnection((oldConnection: any) => {
+    if (oldConnection?.socket) {
+      oldConnection.socket.close();
+    }
+    return { socket: null, state: 'connecting' };
+  });
+  const newWsConn = new WebSocket(`wss://ksi45cnjjb.execute-api.us-west-2.amazonaws.com/staging?roomId=${roomId}`);
+  newWsConn.onopen = e => {
+    setConnection({ socket: newWsConn, state: 'connected' });
+  };
+
+  newWsConn.onmessage = e => {
+    const msg = JSON.parse(e.data);
+    setChats((prevChats: any[]) => [...prevChats, msg]);
+  };
+
+  newWsConn.onclose = () => {
+    setConnection({ socket: null, state: 'disconnected' });
+  };
+  return newWsConn;
+};
+
 export const App = () => {
-  const [connection, setConnection] = React.useState<any>({ socket: null, state: 'connecting' });
+  const [connection, setConnection] = React.useState<any>({ socket: null, state: 'disconnected' });
 
   const [username, setUsername] = React.useState(DEFAULT_USERNAME);
   const [chats, setChats] = React.useState<any[]>([]);
-  const roomId = React.useMemo(() => window.location.pathname.slice(1) || 'default', []);
+  const [roomId, setRoomId] = React.useState<string>(URL_ROOM_ID);
   const onRoomChange = React.useCallback(
     (newRoomId: string) => {
-      if (newRoomId !== roomId) {
-        window.location.href = '/' + newRoomId;
+      if (newRoomId && newRoomId !== roomId) {
+        setRoomId(newRoomId);
+        window.history.replaceState(null, document.title, `/${newRoomId}`);
+        setChats([]);
       }
     },
     [roomId]
   );
-
   const onUsernameChange = React.useCallback((newUsername: string) => {
     setUsername(newUsername || DEFAULT_USERNAME);
   }, []);
+  // const onDisconnect = React.useCallback(() => connection.socket.close(), [connection]);
+  const onReconnect = React.useCallback(() => connectToWs(roomId), [roomId]);
+
+  const connectToWs = (roomId: string) => createWebsocketConnection(roomId, setConnection, setChats);
 
   React.useEffect(() => {
-    const newWsConn = new WebSocket(`wss://ksi45cnjjb.execute-api.us-west-2.amazonaws.com/staging?roomId=${roomId}`);
-    newWsConn.onopen = e => {
-      setConnection({ socket: newWsConn, state: 'connected' });
-    };
-
-    newWsConn.onmessage = e => {
-      const msg = JSON.parse(e.data);
-      setChats((prevChats: any[]) => [...prevChats, msg]);
-    };
-
-    newWsConn.onclose = () => {
-      setConnection({ socket: null, state: 'disconnected' });
-    };
-
-    return () => {
-      newWsConn.close();
-      setConnection({ socket: null, state: 'disconnected' });
-    };
+    connectToWs(roomId);
   }, [roomId]);
 
   const chatBoxRef = React.useRef<HTMLDivElement>(null);
@@ -112,6 +126,7 @@ export const App = () => {
     const grouped = [];
     chats.forEach(chat => {
       if (lastChat && lastChat.connectionId === chat.connectionId) {
+        lastChat.sender = chat.sender;
         lastChat.messages = [...(lastChat?.messages || []), chat];
       } else if (lastChat) {
         grouped.push(lastChat);
@@ -163,6 +178,14 @@ export const App = () => {
       <VStack spacing={2}>
         <Heading size='lg'>Serverless Chat App Demo</Heading>
         <HStack>
+          {connectionState === 'disconnected' && (
+            <IconButton aria-label='reconnect' icon={<MdRefresh />} size='xs' onClick={onReconnect} />
+          )}
+          {/* {connectionState === 'connected' && (
+            <Button size='xs' onClick={onDisconnect}>
+              Disconnect
+            </Button>
+          )} */}
           <Badge colorScheme={connectionStateColor}>{connectionState.toUpperCase()}</Badge>
           <Heading size='sm' as='h3'>
             Current Room:
