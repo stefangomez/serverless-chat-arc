@@ -6,7 +6,7 @@ backend:
   phases:
     preBuild:
       commands:
-        - npm i -g @architect/architect
+        - npm i -g @architect/architect@9.0.0
     build:
       commands:
         - arc deploy
