@@ -21,7 +21,7 @@ exports.handler = async function ws(event) {
   });
   console.log('queryResp', queryResp);
   const connections = queryResp?.Items || [];
-  if (message.type === 'user_join') {
+  if (message.type === 'user_join' || message.type === 'user_rename') {
     await data.chatapp.update({
       Key: { id: `room#${roomId}`, sortKey: `listeners#${connectionId}` },
       UpdateExpression: 'set #username = :username',
@@ -38,6 +38,7 @@ exports.handler = async function ws(event) {
             messageId,
             type: message.type || 'message',
             text: message.text,
+            oldUsername: message.oldUsername,
             sender: username,
             roomId,
             sentAt,

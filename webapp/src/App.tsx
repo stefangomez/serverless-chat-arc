@@ -3,7 +3,10 @@ import * as React from 'react';
 import {
   Avatar,
   Badge,
+  Box,
   Button,
+  Center,
+  Divider,
   Editable,
   EditableInput,
   EditablePreview,
@@ -38,6 +41,7 @@ const COLORS = {
     chatBorder: 'teal.300',
     chatBg: 'gray.50',
     editableBg: 'teal.100',
+    joinText: 'gray.600',
     chatText: 'gray.800',
     chatTextSelf: 'teal.600',
     timestamp: 'gray.600',
@@ -46,13 +50,14 @@ const COLORS = {
     chatBorder: 'teal.600',
     chatBg: 'gray.900',
     editableBg: 'teal.500',
+    joinText: 'gray.300',
     chatText: 'gray.100',
     chatTextSelf: 'teal.400',
     timestamp: 'gray.400',
   },
 };
 
-const createWebsocketConnection = (roomId: string, setConnection: any, setChats: any) => {
+const createWebsocketConnection = (roomId: string, username: string, setConnection: any, setChats: any) => {
   setConnection((oldConnection: any) => {
     if (oldConnection?.socket) {
       oldConnection.socket.close();
@@ -62,10 +67,20 @@ const createWebsocketConnection = (roomId: string, setConnection: any, setChats:
   const newWsConn = new WebSocket(`wss://ksi45cnjjb.execute-api.us-west-2.amazonaws.com/staging?roomId=${roomId}`);
   newWsConn.onopen = e => {
     setConnection({ socket: newWsConn, state: 'connected' });
+    newWsConn.send(
+      JSON.stringify({
+        text: `${username} entered the room`,
+        type: 'user_join',
+        roomId,
+        sentAt: new Date().getTime(),
+        username,
+      })
+    );
   };
 
   newWsConn.onmessage = e => {
     const msg = JSON.parse(e.data);
+    console.log('onmessage:msg', msg);
     setChats((prevChats: any[]) => [...prevChats, msg]);
   };
 
@@ -85,7 +100,7 @@ const ChatWindow = React.memo(({ chats, colors, onUsernameChange, chatInputRef }
     let lastChat: any = null;
     const grouped = [];
     chats.forEach((chat: any) => {
-      if (lastChat && lastChat.connectionId === chat.connectionId) {
+      if (lastChat && lastChat.connectionId === chat.connectionId && lastChat.type === chat.type) {
         lastChat.sender = chat.sender;
         lastChat.messages = [...(lastChat?.messages || []), chat];
       } else if (lastChat) {
@@ -147,27 +162,51 @@ const ChatWindow = React.memo(({ chats, colors, onUsernameChange, chatInputRef }
       >
         {groupedChats.map(chat => {
           return (
-            <HStack
-              alignItems='flex-start'
-              color={chat.isSelf ? colors.chatTextSelf : colors.chatText}
-              key={chat.messageId}
-              w='100%'
-            >
-              <Avatar borderRadius='4px' mt='3px' w='40px' h='40px' name={chat.sender} />
-              <VStack spacing='0px' alignItems='flex-start'>
-                <HStack>
-                  <Text fontWeight='bold'>{chat.sender}</Text>
-                  <Text fontSize='11px' color={colors.timestamp}>
-                    {new Date(chat.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </Text>
+            <>
+              {chat && chat.type === 'message' && (
+                <HStack
+                  alignItems='flex-start'
+                  color={chat.isSelf ? colors.chatTextSelf : colors.chatText}
+                  key={chat.messageId}
+                  w='100%'
+                >
+                  <Avatar borderRadius='4px' mt='3px' w='40px' h='40px' name={chat.sender} />
+                  <VStack spacing='0px' alignItems='flex-start'>
+                    <HStack>
+                      <Text fontWeight='bold'>{chat.sender}</Text>
+                      <Text fontSize='11px' color={colors.timestamp}>
+                        {new Date(chat.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </Text>
+                    </HStack>
+                    {chat.messages.map((c: any) => (
+                      <Text overflowWrap='anywhere' key={c.messageId}>
+                        {c.text.replace(/  /g, ' \u00a0')}
+                      </Text>
+                    ))}
+                  </VStack>
                 </HStack>
-                {chat.messages.map((c: any) => (
-                  <Text overflowWrap='anywhere' key={c.messageId}>
-                    {c.text.replace(/  /g, ' \u00a0')}
-                  </Text>
-                ))}
-              </VStack>
-            </HStack>
+              )}
+              {chat && chat.type === 'user_join' && (
+                <Box pt='10px' h='20px' color={colors.joinText} key={chat.messageId} w='100%' textAlign='center'>
+                  <Divider />
+                  <Center mt='-12px'>
+                    <Text pos='relative' p='0 10px' bgColor={colors.chatBg}>
+                      <b>{chat.messages.map((m: any) => m.sender).join(', ')}</b> joined
+                    </Text>
+                  </Center>
+                </Box>
+              )}
+              {chat && chat.type === 'user_rename' && (
+                <Box pt='10px' h='20px' color={colors.joinText} key={chat.messageId} w='100%' textAlign='center'>
+                  <Divider />
+                  <Center mt='-12px'>
+                    <Text pos='relative' p='0 10px' bgColor={colors.chatBg}>
+                      <b>{chat.oldUsername || chat.connectionId}</b> is now <b>{chat.sender}</b>
+                    </Text>
+                  </Center>
+                </Box>
+              )}
+            </>
           );
         })}
 
@@ -226,14 +265,29 @@ export const App = () => {
     },
     [roomId]
   );
-  const onUsernameChange = React.useCallback((newUsername: string) => {
-    setUsername(newUsername || DEFAULT_USERNAME);
-    chatInputRef?.current?.focus();
-  }, []);
+  const onUsernameChange = React.useCallback(
+    (newUsername: string) => {
+      const updatedUsername = newUsername || DEFAULT_USERNAME;
+      setUsername(updatedUsername);
+      connection?.socket?.send(
+        JSON.stringify({
+          text: `${username} is now ${updatedUsername}`,
+          type: 'user_rename',
+          roomId,
+          sentAt: new Date().getTime(),
+          oldUsername: username,
+          username: updatedUsername,
+        })
+      );
+
+      chatInputRef?.current?.focus();
+    },
+    [connection, roomId, username]
+  );
   // const onDisconnect = React.useCallback(() => connection.socket.close(), [connection]);
   const onReconnect = React.useCallback(() => connectToWs(roomId), [roomId]);
 
-  const connectToWs = (roomId: string) => createWebsocketConnection(roomId, setConnection, setChats);
+  const connectToWs = (roomId: string) => createWebsocketConnection(roomId, username, setConnection, setChats);
 
   React.useEffect(() => {
     connectToWs(roomId);
