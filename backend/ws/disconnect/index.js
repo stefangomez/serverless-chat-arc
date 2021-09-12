@@ -19,6 +19,7 @@ const sendLeaveMessages = async (messageId, connectionId, roomId, leftUsername) 
         const res = await arc.ws.send({
           id: conn.connectionId,
           payload: {
+            numUsers: connections.length,
             messageId,
             type: 'user_leave',
             text: `${leftUsername} left the room`,
@@ -44,7 +45,7 @@ exports.handler = async function ws(event, other) {
   console.log('ws-disconnect called with', event);
   console.log('ws-disconnect called with other', other);
   let connectionId = event.requestContext.connectionId;
-  let messageId = event.requestContext.messageId;
+  let messageId = event.requestContext.messageId || event.requestContext.requestId;
 
   let data = await arc.tables();
 
