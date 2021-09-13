@@ -204,7 +204,7 @@ const ChatWindow = React.memo(({ chats, colors, onUsernameChange, chatInputRef }
                     </HStack>
                     {chat.messages.map((c: any) => (
                       <Text overflowWrap='anywhere' key={c.messageId}>
-                        {c.text.replace(/  /g, ' \u00a0')}
+                        {c.text.replace(/ {2}/g, ' \u00a0')}
                       </Text>
                     ))}
                   </VStack>
