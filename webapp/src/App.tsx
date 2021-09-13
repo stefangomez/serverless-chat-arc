@@ -30,8 +30,11 @@ import {
 import { ColorModeSwitcher } from './ColorModeSwitcher';
 import { ImGithub } from 'react-icons/im';
 import { MdRefresh } from 'react-icons/md';
+import doorOpenFx from './assets/dooropen.wav';
+import doorSlamFx from './assets/doorslam.wav';
 import imRcvFx from './assets/imrcv.wav';
 import imSndFx from './assets/imsend.wav';
+// import ringFx from './assets/ring.wav';
 import useSound from 'use-sound';
 
 const URL_ROOM_ID = window.location.pathname.slice(1) || 'default';
@@ -96,12 +99,19 @@ const ChatWindow = React.memo(({ chats, colors, onUsernameChange, chatInputRef }
   const chatBoxRef = React.useRef<HTMLDivElement>(null);
   const [playRcvFx] = useSound(imRcvFx);
   const [playSndFx] = useSound(imSndFx);
+  const [playJoinFx] = useSound(doorOpenFx);
+  const [playLeaveFx] = useSound(doorSlamFx);
+  // const [playFirstIncomingFx] = useSound(ringFx);
   const groupedChats: any = React.useMemo(() => {
     let lastChat: any = null;
+    let incomingMessageCount = 0;
     const grouped = [];
     const usernameMap: any = {};
     chats.forEach((chat: any) => {
       usernameMap[chat.connectionId] = chat.sender;
+      if (chat.type === 'message' && !chat.isSelf) {
+        incomingMessageCount += 1;
+      }
       if (lastChat && lastChat.connectionId === chat.connectionId && lastChat.type === chat.type) {
         // lastChat.sender = chat.sender;
         lastChat.messages = [...(lastChat?.messages || []), chat];
@@ -115,7 +125,7 @@ const ChatWindow = React.memo(({ chats, colors, onUsernameChange, chatInputRef }
     if (lastChat) {
       grouped.push(lastChat);
     }
-    return { usernameMap, chats: grouped, lastChat };
+    return { usernameMap, chats: grouped, lastChat, incomingMessageCount };
   }, [chats]);
 
   const onSetUsername = React.useCallback(() => {
@@ -126,14 +136,31 @@ const ChatWindow = React.memo(({ chats, colors, onUsernameChange, chatInputRef }
 
   React.useEffect(() => {
     if (chatBoxRef?.current) {
-      if (groupedChats.chats.length && groupedChats.lastChat?.isSelf && groupedChats.lastChat.type === 'message') {
-        playSndFx();
-      } else if (groupedChats.chats.length && groupedChats.lastChat?.type === 'message') {
-        playRcvFx();
+      console.log('groupedChats', groupedChats);
+      if (groupedChats.chats.length && groupedChats.lastChat) {
+        console.log('groupedChats.lastChat', groupedChats.lastChat);
+        const lastChatType = groupedChats.lastChat.type;
+        if (lastChatType === 'message') {
+          if (groupedChats.lastChat.isSelf) {
+            playSndFx();
+          } else {
+            // if (groupedChats.incomingMessageCount === 1) {
+            //   playFirstIncomingFx();
+            // } else {
+            playRcvFx();
+            // }
+          }
+        }
+        if (lastChatType === 'user_join') {
+          playJoinFx();
+        }
+        if (lastChatType === 'user_leave') {
+          playLeaveFx();
+        }
       }
       chatBoxRef.current.scrollTo({ top: chatBoxRef.current.scrollHeight });
     }
-  }, [groupedChats, playSndFx, playRcvFx]);
+  }, [groupedChats, playSndFx, playRcvFx, playJoinFx, playLeaveFx]);
 
   const onUsernameInputKeyup = React.useCallback(
     (e: any) => {
