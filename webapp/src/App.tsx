@@ -83,7 +83,7 @@ const createWebsocketConnection = (roomId: string, username: string, setConnecti
 
   newWsConn.onmessage = e => {
     const msg = JSON.parse(e.data);
-    console.log('onmessage:msg', msg);
+    // console.log('onmessage:msg', msg);
     setChats((prevChats: any[]) => [...prevChats, msg]);
   };
 
@@ -136,9 +136,8 @@ const ChatWindow = React.memo(({ chats, colors, onUsernameChange, chatInputRef }
 
   React.useEffect(() => {
     if (chatBoxRef?.current) {
-      console.log('groupedChats', groupedChats);
+      // console.log('groupedChats', groupedChats);
       if (groupedChats.chats.length && groupedChats.lastChat) {
-        console.log('groupedChats.lastChat', groupedChats.lastChat);
         const lastChatType = groupedChats.lastChat.type;
         if (lastChatType === 'message') {
           if (groupedChats.lastChat.isSelf) {
