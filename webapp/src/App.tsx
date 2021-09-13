@@ -232,11 +232,16 @@ const ChatWindow = React.memo(({ chats, colors, onUsernameChange, chatInputRef }
         <ModalContent>
           <ModalHeader>Set your chat username</ModalHeader>
           <ModalBody>
-            <Input ref={usernameInputRef} placeholder={DEFAULT_USERNAME} onKeyUp={onUsernameInputKeyup} />
+            <Input
+              focusBorderColor='teal.400'
+              ref={usernameInputRef}
+              placeholder={DEFAULT_USERNAME}
+              onKeyUp={onUsernameInputKeyup}
+            />
           </ModalBody>
 
           <ModalFooter>
-            <Button colorScheme='blue' onClick={onSetUsername}>
+            <Button colorScheme='teal' onClick={onSetUsername}>
               Set Username
             </Button>
           </ModalFooter>
