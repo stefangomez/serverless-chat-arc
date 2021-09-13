@@ -4,11 +4,15 @@
       "path": "."
     },
     {
-      "path": "web"
+      "path": "webapp"
     },
     {
       "path": "src",
       "name": "backend"
+    },
+    {
+      "path": "mobile-app",
+      "name": "mobile-app"
     }
   ],
   "settings": {
