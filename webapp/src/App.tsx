@@ -96,12 +96,14 @@ const ChatWindow = React.memo(({ chats, colors, onUsernameChange, chatInputRef }
   const chatBoxRef = React.useRef<HTMLDivElement>(null);
   const [playRcvFx] = useSound(imRcvFx);
   const [playSndFx] = useSound(imSndFx);
-  const groupedChats: any[] = React.useMemo(() => {
+  const groupedChats: any = React.useMemo(() => {
     let lastChat: any = null;
     const grouped = [];
+    const usernameMap: any = {};
     chats.forEach((chat: any) => {
+      usernameMap[chat.connectionId] = chat.sender;
       if (lastChat && lastChat.connectionId === chat.connectionId && lastChat.type === chat.type) {
-        lastChat.sender = chat.sender;
+        // lastChat.sender = chat.sender;
         lastChat.messages = [...(lastChat?.messages || []), chat];
       } else if (lastChat) {
         grouped.push(lastChat);
@@ -113,7 +115,7 @@ const ChatWindow = React.memo(({ chats, colors, onUsernameChange, chatInputRef }
     if (lastChat) {
       grouped.push(lastChat);
     }
-    return grouped;
+    return { usernameMap, chats: grouped, lastChat };
   }, [chats]);
 
   const onSetUsername = React.useCallback(() => {
@@ -124,9 +126,9 @@ const ChatWindow = React.memo(({ chats, colors, onUsernameChange, chatInputRef }
 
   React.useEffect(() => {
     if (chatBoxRef?.current) {
-      if (groupedChats.length && groupedChats[groupedChats.length - 1].isSelf) {
+      if (groupedChats.chats.length && groupedChats.lastChat?.isSelf && groupedChats.lastChat.type === 'message') {
         playSndFx();
-      } else if (groupedChats.length) {
+      } else if (groupedChats.chats.length && groupedChats.lastChat?.type === 'message') {
         playRcvFx();
       }
       chatBoxRef.current.scrollTo({ top: chatBoxRef.current.scrollHeight });
@@ -160,20 +162,16 @@ const ChatWindow = React.memo(({ chats, colors, onUsernameChange, chatInputRef }
         borderWidth='3px'
         borderRadius='10px'
       >
-        {groupedChats.map(chat => {
+        {groupedChats.chats.map((chat: any) => {
+          const sender = groupedChats.usernameMap[chat.connectionId] || chat.sender;
           return (
-            <>
+            <React.Fragment key={chat.messageId}>
               {chat && chat.type === 'message' && (
-                <HStack
-                  alignItems='flex-start'
-                  color={chat.isSelf ? colors.chatTextSelf : colors.chatText}
-                  key={chat.messageId}
-                  w='100%'
-                >
-                  <Avatar borderRadius='4px' mt='3px' w='40px' h='40px' name={chat.sender} />
+                <HStack alignItems='flex-start' color={chat.isSelf ? colors.chatTextSelf : colors.chatText} w='100%'>
+                  <Avatar borderRadius='4px' mt='3px' w='40px' h='40px' name={sender} />
                   <VStack spacing='0px' alignItems='flex-start'>
                     <HStack>
-                      <Text fontWeight='bold'>{chat.sender}</Text>
+                      <Text fontWeight='bold'>{sender}</Text>
                       <Text fontSize='11px' color={colors.timestamp}>
                         {new Date(chat.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </Text>
@@ -187,17 +185,29 @@ const ChatWindow = React.memo(({ chats, colors, onUsernameChange, chatInputRef }
                 </HStack>
               )}
               {chat && chat.type === 'user_join' && (
-                <Box pt='10px' h='20px' color={colors.joinText} key={chat.messageId} w='100%' textAlign='center'>
+                <Box pt='10px' h='20px' color={colors.joinText} w='100%' textAlign='center'>
                   <Divider />
                   <Center mt='-12px'>
                     <Text pos='relative' p='0 10px' bgColor={colors.chatBg}>
-                      <b>{chat.messages.map((m: any) => m.sender).join(', ')}</b> joined
+                      <b>{chat.messages.map((m: any) => m.sender).join(', ')}</b> joined ({chat.numUsers} user
+                      {chat.numUsers > 1 ? 's' : ''})
+                    </Text>
+                  </Center>
+                </Box>
+              )}
+              {chat && chat.type === 'user_leave' && (
+                <Box pt='10px' h='20px' color={colors.joinText} w='100%' textAlign='center'>
+                  <Divider />
+                  <Center mt='-12px'>
+                    <Text pos='relative' p='0 10px' bgColor={colors.chatBg}>
+                      <b>{chat.messages.map((m: any) => m.sender).join(', ')}</b> left ({chat.numUsers} user
+                      {chat.numUsers > 1 ? 's' : ''})
                     </Text>
                   </Center>
                 </Box>
               )}
               {chat && chat.type === 'user_rename' && (
-                <Box pt='10px' h='20px' color={colors.joinText} key={chat.messageId} w='100%' textAlign='center'>
+                <Box pt='10px' h='20px' color={colors.joinText} w='100%' textAlign='center'>
                   <Divider />
                   <Center mt='-12px'>
                     <Text pos='relative' p='0 10px' bgColor={colors.chatBg}>
@@ -206,7 +216,7 @@ const ChatWindow = React.memo(({ chats, colors, onUsernameChange, chatInputRef }
                   </Center>
                 </Box>
               )}
-            </>
+            </React.Fragment>
           );
         })}
 
