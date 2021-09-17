@@ -1,4 +1,4 @@
-let arc = require('@architect/functions');
+import arc from '@architect/functions';
 
 /**
  * used to clean up event.requestContext.connectionId
@@ -41,7 +41,7 @@ const sendLeaveMessages = async (messageId, connectionId, roomId, leftUsername) 
     })
   );
 };
-exports.handler = async function ws(event, other) {
+export async function handler(event, other) {
   console.log('ws-disconnect called with', event);
   console.log('ws-disconnect called with other', other);
   let connectionId = event.requestContext.connectionId;
@@ -68,4 +68,4 @@ exports.handler = async function ws(event, other) {
   );
 
   return { statusCode: 200 };
-};
+}

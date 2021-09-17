@@ -1,9 +1,9 @@
-let arc = require('@architect/functions');
+import arc from '@architect/functions';
 
 /**
  * append a timestamp and echo the message back to the connectionId
  */
-exports.handler = async function ws(event) {
+export async function handler(event, other) {
   console.log('ws-default called with', event);
 
   let timestamp = new Date().getTime();
@@ -59,4 +59,4 @@ exports.handler = async function ws(event) {
   );
 
   return { statusCode: 200 };
-};
+}

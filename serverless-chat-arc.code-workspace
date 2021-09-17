@@ -7,7 +7,7 @@
       "path": "webapp"
     },
     {
-      "path": "src",
+      "path": "backend",
       "name": "backend"
     },
     {
