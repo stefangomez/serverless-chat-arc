@@ -4,8 +4,17 @@
     "module": "commonjs",
     "outDir": "dist",
     "moduleResolution": "node",
+    "allowJs": true,
+    "skipLibCheck": true,
     "esModuleInterop": true,
-    "lib": ["es2019"]
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "lib": ["es2019"],
+    "rootDir": "backend"
   },
   "include": ["backend/**/*.*"]
 }

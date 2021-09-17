@@ -1,15 +1,13 @@
+import { LambdaHandler } from '@architect/functions/http';
 import arc from '@architect/functions';
 
-/**
- * append a timestamp and echo the message back to the connectionId
- */
-export async function handler(event, other) {
+export const handler: LambdaHandler = async (event, context) => {
   console.log('ws-default called with', event);
 
   let timestamp = new Date().getTime();
   let connectionId = event.requestContext.connectionId;
   let messageId = event.requestContext.messageId;
-  let message = JSON.parse(event.body);
+  let message = event.body && JSON.parse(event.body);
   let roomId = message.roomId || 'default';
   let sentAt = message.sentAt || timestamp;
   let username = message.username || connectionId;
@@ -30,7 +28,7 @@ export async function handler(event, other) {
     });
   }
   await Promise.all(
-    connections.map(async conn => {
+    connections.map(async (conn: any) => {
       try {
         const res = await arc.ws.send({
           id: conn.connectionId,
@@ -58,5 +56,5 @@ export async function handler(event, other) {
     })
   );
 
-  return { statusCode: 200 };
-}
+  return { statusCode: 200, body: '' };
+};

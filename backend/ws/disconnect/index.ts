@@ -1,10 +1,12 @@
+import { LambdaHandler } from '@architect/functions/http';
 import arc from '@architect/functions';
 
-/**
- * used to clean up event.requestContext.connectionId
- */
-
-const sendLeaveMessages = async (messageId, connectionId, roomId, leftUsername) => {
+const sendLeaveMessages = async (
+  messageId: string,
+  connectionId: string | undefined,
+  roomId: string,
+  leftUsername: string
+) => {
   let data = await arc.tables();
   let queryResp = await data.chatapp.query({
     KeyConditionExpression: 'id = :id',
@@ -14,7 +16,7 @@ const sendLeaveMessages = async (messageId, connectionId, roomId, leftUsername) 
   const connections = queryResp?.Items || [];
   const timestamp = new Date().getTime();
   await Promise.all(
-    connections.map(async conn => {
+    connections.map(async (conn: any) => {
       try {
         const res = await arc.ws.send({
           id: conn.connectionId,
@@ -41,9 +43,9 @@ const sendLeaveMessages = async (messageId, connectionId, roomId, leftUsername) 
     })
   );
 };
-export async function handler(event, other) {
+export const handler: LambdaHandler = async (event, context) => {
   console.log('ws-disconnect called with', event);
-  console.log('ws-disconnect called with other', other);
+  console.log('ws-disconnect called with other', context);
   let connectionId = event.requestContext.connectionId;
   let messageId = event.requestContext.messageId || event.requestContext.requestId;
 
@@ -56,7 +58,7 @@ export async function handler(event, other) {
   });
   console.log('queryResp', queryResp);
   await Promise.all(
-    queryResp?.Items.map(async dbObj => {
+    queryResp?.Items.map(async (dbObj: any) => {
       await data.chatapp.delete({ id: dbObj.id, sortKey: dbObj.sortKey });
       await sendLeaveMessages(
         messageId,
@@ -67,5 +69,5 @@ export async function handler(event, other) {
     })
   );
 
-  return { statusCode: 200 };
-}
+  return { statusCode: 200, body: '' };
+};

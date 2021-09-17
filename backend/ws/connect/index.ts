@@ -1,3 +1,4 @@
+import { LambdaHandler } from '@architect/functions/http';
 import arc from '@architect/functions';
 
 /**
@@ -5,7 +6,8 @@ import arc from '@architect/functions';
  * - verify event.headers.Origin to enforce same-origin
  * - non 200 response will disconnect the client socket
  */
-export async function handler(event, other) {
+
+export const handler: LambdaHandler = async (event, context) => {
   console.log('ws-connect called with', event);
   let connectionId = event.requestContext.connectionId;
   let roomId = event.queryStringParameters?.roomId || 'default';
@@ -18,5 +20,5 @@ export async function handler(event, other) {
     connectionId,
     createdAt: createdAt.toISOString(),
   });
-  return { statusCode: 200 };
-}
+  return { statusCode: 200, body: '' };
+};
