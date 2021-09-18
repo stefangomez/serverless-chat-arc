@@ -1,19 +1,13 @@
 import { LambdaHandler } from '@architect/functions/http';
 import arc from '@architect/functions';
 
-/**
- * notes:
- * - verify event.headers.Origin to enforce same-origin
- * - non 200 response will disconnect the client socket
- */
-
 export const handler: LambdaHandler = async (event, context) => {
   console.log('ws-connect called with', event);
-  let connectionId = event.requestContext.connectionId;
-  let roomId = event.queryStringParameters?.roomId || 'default';
-  let createdAt = new Date();
+  const connectionId = event.requestContext.connectionId;
+  const roomId = event.queryStringParameters?.roomId || 'default';
+  const createdAt = new Date();
 
-  let data = await arc.tables();
+  const data = await arc.tables();
   await data.chatapp.put({
     id: `room#${roomId}`,
     sortKey: `listeners#${connectionId}`,

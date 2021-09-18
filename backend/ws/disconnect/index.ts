@@ -7,12 +7,11 @@ const sendLeaveMessages = async (
   roomId: string,
   leftUsername: string
 ) => {
-  let data = await arc.tables();
-  let queryResp = await data.chatapp.query({
+  const data = await arc.tables();
+  const queryResp = await data.chatapp.query({
     KeyConditionExpression: 'id = :id',
     ExpressionAttributeValues: { ':id': `room#${roomId}` },
   });
-  console.log('queryResp', queryResp);
   const connections = queryResp?.Items || [];
   const timestamp = new Date().getTime();
   await Promise.all(
@@ -45,18 +44,16 @@ const sendLeaveMessages = async (
 };
 export const handler: LambdaHandler = async (event, context) => {
   console.log('ws-disconnect called with', event);
-  console.log('ws-disconnect called with other', context);
-  let connectionId = event.requestContext.connectionId;
-  let messageId = event.requestContext.messageId || event.requestContext.requestId;
+  const connectionId = event.requestContext.connectionId;
+  const messageId = event.requestContext.messageId || event.requestContext.requestId;
 
-  let data = await arc.tables();
+  const data = await arc.tables();
 
-  let queryResp = await data.chatapp.query({
+  const queryResp = await data.chatapp.query({
     IndexName: 'GSI',
     KeyConditionExpression: 'sortKey = :sortKey',
     ExpressionAttributeValues: { ':sortKey': `listeners#${connectionId}` },
   });
-  console.log('queryResp', queryResp);
   await Promise.all(
     queryResp?.Items.map(async (dbObj: any) => {
       await data.chatapp.delete({ id: dbObj.id, sortKey: dbObj.sortKey });

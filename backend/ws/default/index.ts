@@ -4,20 +4,18 @@ import arc from '@architect/functions';
 export const handler: LambdaHandler = async (event, context) => {
   console.log('ws-default called with', event);
 
-  let timestamp = new Date().getTime();
-  let connectionId = event.requestContext.connectionId;
-  let messageId = event.requestContext.messageId;
-  let message = event.body && JSON.parse(event.body);
-  let roomId = message.roomId || 'default';
-  let sentAt = message.sentAt || timestamp;
-  let username = message.username || connectionId;
-  // let text = `${timestamp} - Echoing ${message.text}`
-  let data = await arc.tables();
-  let queryResp = await data.chatapp.query({
+  const timestamp = new Date().getTime();
+  const connectionId = event.requestContext.connectionId;
+  const messageId = event.requestContext.messageId;
+  const message = event.body && JSON.parse(event.body);
+  const roomId = message.roomId || 'default';
+  const sentAt = message.sentAt || timestamp;
+  const username = message.username || connectionId;
+  const data = await arc.tables();
+  const queryResp = await data.chatapp.query({
     KeyConditionExpression: 'id = :id',
     ExpressionAttributeValues: { ':id': `room#${roomId}` },
   });
-  console.log('queryResp', queryResp);
   const connections = queryResp?.Items || [];
   if (message.type === 'user_join' || message.type === 'user_rename') {
     await data.chatapp.update({
