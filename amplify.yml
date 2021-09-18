@@ -1,14 +1,10 @@
 version: 1
-# env:
-#   variables:
-#     key: value
 backend:
   phases:
-    # preBuild:
-    #   commands:
-    #     - npm i -g @architect/architect@9.0.0
     preBuild:
       commands:
+        - nvm install 14
+        - nvm use 14
         - npm i
     build:
       commands:
@@ -19,6 +15,7 @@ backend:
   cache:
     paths:
       - 'node_modules/**/*'
+      - '/root/.nvm/versions/node/'
 frontend:
   phases:
     build:
@@ -33,12 +30,3 @@ frontend:
   cache:
     paths:
       - 'webapp/node_modules/**/*'
-# frontend:
-#   phases:
-#     build:
-#       commands:
-#         - echo "TODO write WS url to web/config.mjs"
-#   artifacts:
-#     files:
-#       - '**/*'
-#     baseDirectory: web
