@@ -30,6 +30,7 @@ import {
 import { ColorModeSwitcher } from './ColorModeSwitcher';
 import { ImGithub } from 'react-icons/im';
 import { MdRefresh } from 'react-icons/md';
+import appConfig from './app-config.json';
 import doorOpenFx from './assets/dooropen.wav';
 import doorSlamFx from './assets/doorslam.wav';
 import imRcvFx from './assets/imrcv.wav';
@@ -67,7 +68,7 @@ const createWebsocketConnection = (roomId: string, username: string, setConnecti
     }
     return { socket: null, state: 'connecting' };
   });
-  const newWsConn = new WebSocket(`wss://ksi45cnjjb.execute-api.us-west-2.amazonaws.com/staging?roomId=${roomId}`);
+  const newWsConn = new WebSocket(`${appConfig?.WSS || 'ws://localhost:3333/'}?roomId=${roomId}`);
   newWsConn.onopen = e => {
     setConnection({ socket: newWsConn, state: 'connected' });
     newWsConn.send(
@@ -83,7 +84,7 @@ const createWebsocketConnection = (roomId: string, username: string, setConnecti
 
   newWsConn.onmessage = e => {
     const msg = JSON.parse(e.data);
-    // console.log('onmessage:msg', msg);
+    console.log('onmessage:msg', msg);
     setChats((prevChats: any[]) => [...prevChats, msg]);
   };
 

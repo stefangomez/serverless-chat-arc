@@ -16,6 +16,7 @@ import {
 import { StyleSheet, View } from 'react-native';
 
 import React from 'react';
+import appConfig from '../app-config.json';
 
 const URL_ROOM_ID = 'default';
 const DEFAULT_USERNAME = 'anon' + Math.floor(Math.random() * 10000);
@@ -47,7 +48,7 @@ const createWebsocketConnection = (roomId: string, username: string, setConnecti
     }
     return { socket: null, state: 'connecting' };
   });
-  const newWsConn = new WebSocket(`wss://ksi45cnjjb.execute-api.us-west-2.amazonaws.com/staging?roomId=${roomId}`);
+  const newWsConn = new WebSocket(`${appConfig?.WSS || 'ws://localhost:3333/'}?roomId=${roomId}`);
   newWsConn.onopen = e => {
     setConnection({ socket: newWsConn, state: 'connected' });
     newWsConn.send(

@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "commonjs",
+    "outDir": "dist",
+    "moduleResolution": "node",
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "lib": ["es2019"],
+    "rootDir": "backend",
+    "baseUrl": "./backend",
+    "paths": {
+      "@architect/shared/*": ["shared/*"]
+    }
+  },
+  "include": ["backend/**/*.*"]
+}

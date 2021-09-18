@@ -1,17 +1,16 @@
 @app
-serverless-chat-arc
+serverless-chat-arc-ts
 
 @ws
 default
-  src backend/ws/default
+  src dist/ws/default
 connect
-  src backend/ws/connect
+  src dist/ws/connect
 disconnect
-  src backend/ws/disconnect
+  src dist/ws/disconnect
 
-# no further config required
-# client code is in /public
-# serverless code is in /src/ws/*
+@shared
+src dist/shared
 
 @tables
 chatapp
@@ -25,4 +24,3 @@ chatapp
   sortKey *String
   createdAt **String
   
-@static

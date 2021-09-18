@@ -1,15 +1,19 @@
 version: 1
-# env:
-#   variables:
-#     key: value
 backend:
   phases:
     preBuild:
       commands:
-        - npm i -g @architect/architect@9.0.0
+        - nvm install 14 && nvm use 14
+        - npm i
     build:
       commands:
-        - arc deploy
+        - if [ "${AWS_BRANCH}" = "main" ]; then export STAGE_NAME=production; else export STAGE_NAME=${AWS_BRANCH}; fi;
+        - if [ "${STAGE_NAME}" = "production" ]; then npm run deploy:production; fi;
+        - if [ "${STAGE_NAME}" != "production" ]; then npm run deploy:branch; fi;
+        - npm run generate-client-config
+  cache:
+    paths:
+      - 'node_modules/**/*'
 frontend:
   phases:
     build:
@@ -21,12 +25,6 @@ frontend:
     files:
       - '**/*'
     baseDirectory: webapp/build
-# frontend:
-#   phases:
-#     build:
-#       commands:
-#         - echo "TODO write WS url to web/config.mjs"
-#   artifacts:
-#     files:
-#       - '**/*'
-#     baseDirectory: web
+  cache:
+    paths:
+      - 'webapp/node_modules/**/*'

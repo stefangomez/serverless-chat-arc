@@ -1,6 +1,6 @@
 {
-  "name": "test-ws-ws-disconnect",
+  "name": "serverless-chat-arc-ws-disconnect",
   "dependencies": {
-    "@architect/functions": "^3.7.6"
+    "@architect/functions": "^3.13.8"
   }
 }
