@@ -29,7 +29,7 @@ frontend:
     baseDirectory: webapp/build
   cache:
     paths:
-      - 'node_modules/**/*'
+      - 'webapp/node_modules/**/*'
 # frontend:
 #   phases:
 #     build:
