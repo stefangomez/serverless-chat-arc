@@ -84,7 +84,7 @@ const createWebsocketConnection = (roomId: string, username: string, setConnecti
 
   newWsConn.onmessage = e => {
     const msg = JSON.parse(e.data);
-    // console.log('onmessage:msg', msg);
+    console.log('onmessage:msg', msg);
     setChats((prevChats: any[]) => [...prevChats, msg]);
   };
 
