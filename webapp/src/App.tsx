@@ -67,8 +67,8 @@ const createWebsocketConnection = (roomId: string, username: string, setConnecti
     }
     return { socket: null, state: 'connecting' };
   });
-  const newWsConn = new WebSocket(`ws://localhost:3333/?roomId=${roomId}`);
-  // const newWsConn = new WebSocket(`wss://ksi45cnjjb.execute-api.us-west-2.amazonaws.com/staging?roomId=${roomId}`);
+  // const newWsConn = new WebSocket(`ws://localhost:3333/?roomId=${roomId}`);
+  const newWsConn = new WebSocket(`wss://alnjvpychg.execute-api.us-west-2.amazonaws.com/staging?roomId=${roomId}`);
   newWsConn.onopen = e => {
     setConnection({ socket: newWsConn, state: 'connected' });
     newWsConn.send(
