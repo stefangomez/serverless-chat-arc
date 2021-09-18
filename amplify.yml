@@ -13,7 +13,7 @@ backend:
     build:
       commands:
         - npm run deploy:staging
-        - npm run env:staging
+        - npm run generate-client-config
   cache:
     paths:
       - 'node_modules/**/*'

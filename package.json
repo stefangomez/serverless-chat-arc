@@ -12,7 +12,8 @@
     "start": "npm run build && concurrently npm:watch npm:serve",
     "env:staging": "arc env",
     "deploy:staging": "npm run build && arc deploy",
-    "deploy:production": "npm run build && arc deploy production"
+    "deploy:production": "npm run build && arc deploy production",
+    "generate-client-config": "node write-config-files.js"
   },
   "keywords": [],
   "author": "Brian LeRoux <b@brian.io>",

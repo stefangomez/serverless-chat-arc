@@ -28,4 +28,3 @@ chatapp
   sortKey *String
   createdAt **String
   
-@static
