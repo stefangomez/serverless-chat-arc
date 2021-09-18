@@ -11,7 +11,7 @@
     "serve": "ARC_TABLES_PORT=5001 arc sandbox",
     "start": "npm run build && concurrently npm:watch npm:serve",
     "env:staging": "arc env",
-    "deploy:staging": "npm run build && arc deploy",
+    "deploy:branch": "npm run build && arc deploy --name $STAGE_NAME",
     "deploy:production": "npm run build && arc deploy production",
     "generate-client-config": "node write-config-files.js"
   },

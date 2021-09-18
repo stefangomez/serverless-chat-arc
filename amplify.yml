@@ -12,7 +12,9 @@ backend:
         - npm i
     build:
       commands:
-        - npm run deploy:staging
+        - if [ "${AWS_BRANCH}" = "main" ]; then export STAGE_NAME=production; else export STAGE_NAME=${AWS_BRANCH}; fi;
+        - if [ "${STAGE_NAME}" = "production" ]; then npm run deploy:production; fi;
+        - if [ "${STAGE_NAME}" != "production" ]; then npm run deploy:branch; fi;
         - npm run generate-client-config
   cache:
     paths:
