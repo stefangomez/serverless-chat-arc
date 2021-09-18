@@ -3,8 +3,7 @@ backend:
   phases:
     preBuild:
       commands:
-        - nvm install 14
-        - nvm use 14
+        - nvm install 14 && nvm use 14
         - npm i
     build:
       commands:
@@ -15,7 +14,7 @@ backend:
   cache:
     paths:
       - 'node_modules/**/*'
-      - '/root/.nvm/versions/node/'
+      # - '/root/.nvm/versions/node/'
 frontend:
   phases:
     build:

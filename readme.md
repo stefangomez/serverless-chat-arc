@@ -1,14 +1,16 @@
-# Arc Websockets Example
+# Serverless Chat App Example
 
-An `echo` server using web sockets for Architect 8.x.
+A simple full-stack chat app (web and mobile) with a serverless backend.
 
-## Local demo
+built with Architect(https://arc.codes)
+
+## Local development
 
 ```bash
 npm i
-arc sandbox
+npm start
 ```
 
-## Deploying to Lambda
+## Deploying to AWS
 
-If you want to deploy to Lambda you may need to add an `@aws` entry (https://arc.codes/reference/arc/aws) in your `.arc` file. Also be sure to update `src/http/get-index/get-web-socket-url.js` after your first deploy with real urls.
+Amplify deploy button to go here

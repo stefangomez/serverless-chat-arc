@@ -22,7 +22,7 @@ async function cmd() {
       console.log(`stderr: ${stderr}`);
       return;
     }
-    const stackInfo = JSON.parse(stdout).Stacks[0].Outputs;
+    const stackInfo = JSON.parse(stdout).Stacks[0].Outputs || [];
     const outputs = Object.fromEntries(stackInfo.map(o => [o.OutputKey, o.OutputValue])) || [];
     const outputsStr = JSON.stringify(outputs);
     console.log('stackOutputs', outputs);
