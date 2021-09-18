@@ -11,7 +11,7 @@ async function cmd() {
   const appname = inv.app;
   // TODO: get production from env var
   const stage = process.env.STAGE_NAME;
-  const stackname = `${toLogicalID(appname)}${stage === 'production' ? 'Production' : stage}`;
+  const stackname = toLogicalID(`${appname}-${stage}`);
   console.log('stackname', stackname);
   exec(`aws cloudformation describe-stacks --stack-name ${stackname}`, (error, stdout, stderr) => {
     if (error) {
