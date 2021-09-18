@@ -25,6 +25,7 @@ async function cmd() {
     const stackInfo = JSON.parse(stdout).Stacks[0].Outputs;
     const outputs = Object.fromEntries(stackInfo.map(o => [o.OutputKey, o.OutputValue])) || [];
     const outputsStr = JSON.stringify(outputs);
+    console.log('stackOutputs', outputs);
     fs.writeFileSync('webapp/src/app-config.json', outputsStr);
     fs.writeFileSync('mobile-app/app-config.json', outputsStr);
   });
