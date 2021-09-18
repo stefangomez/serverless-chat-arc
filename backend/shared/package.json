@@ -1,6 +1,0 @@
-{
-  "name": "serverless-chat-arc-db",
-  "dependencies": {
-    "@architect/functions": "^3.7.6"
-  }
-}
