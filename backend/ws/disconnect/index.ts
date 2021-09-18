@@ -1,41 +1,33 @@
+import { ChatDatabase, Participant } from '@architect/shared/database';
+
 import { LambdaHandler } from '@architect/functions/http';
 import arc from '@architect/functions';
 
-const sendLeaveMessages = async (
-  messageId: string,
-  connectionId: string | undefined,
-  roomId: string,
-  leftUsername: string
-) => {
-  const data = await arc.tables();
-  const queryResp = await data.chatapp.query({
-    KeyConditionExpression: 'id = :id',
-    ExpressionAttributeValues: { ':id': `room#${roomId}` },
-  });
-  const connections = queryResp?.Items || [];
+const sendLeaveMessages = async (dbInstance: ChatDatabase, leftParticipant: Participant, messageId: string) => {
+  const participants = await dbInstance.getParticipants(leftParticipant.roomId);
   const timestamp = new Date().getTime();
   await Promise.all(
-    connections.map(async (conn: any) => {
+    participants.map(async participant => {
       try {
         const res = await arc.ws.send({
-          id: conn.connectionId,
+          id: participant.connectionId,
           payload: {
-            numUsers: connections.length,
+            numUsers: participants.length,
             messageId,
             type: 'user_leave',
-            text: `${leftUsername} left the room`,
-            sender: leftUsername,
-            roomId,
+            text: `${leftParticipant.username || leftParticipant.connectionId} left the room`,
+            sender: leftParticipant.username || leftParticipant.connectionId,
+            roomId: leftParticipant.roomId,
             sentAt: timestamp,
             serverReceivedAt: timestamp,
-            connectionId,
+            connectionId: leftParticipant.connectionId,
           },
         });
         return res;
       } catch (e) {
-        console.log(`error sending message to connectionId: ${connectionId}`);
+        console.log(`error sending message to connectionId: ${participant.connectionId}`);
         console.log(e);
-        await data.chatapp.delete({ id: conn.id, sortKey: conn.sortKey });
+        await dbInstance.deleteParticipant(participant);
 
         return null;
       }
@@ -47,24 +39,15 @@ export const handler: LambdaHandler = async (event, context) => {
   const connectionId = event.requestContext.connectionId;
   const messageId = event.requestContext.messageId || event.requestContext.requestId;
 
-  const data = await arc.tables();
-
-  const queryResp = await data.chatapp.query({
-    IndexName: 'GSI',
-    KeyConditionExpression: 'sortKey = :sortKey',
-    ExpressionAttributeValues: { ':sortKey': `listeners#${connectionId}` },
-  });
-  await Promise.all(
-    queryResp?.Items.map(async (dbObj: any) => {
-      await data.chatapp.delete({ id: dbObj.id, sortKey: dbObj.sortKey });
-      await sendLeaveMessages(
-        messageId,
-        connectionId,
-        dbObj.id.split('room#')[1],
-        dbObj.username || dbObj.connectionId
-      );
-    })
-  );
-
+  if (connectionId) {
+    const dbInstance = await ChatDatabase.getInstance();
+    const connections = await dbInstance.getParticipantConnections(connectionId);
+    await Promise.all(
+      connections.map(async participant => {
+        await dbInstance.deleteParticipant(participant);
+        await sendLeaveMessages(dbInstance, participant, messageId);
+      })
+    );
+  }
   return { statusCode: 200, body: '' };
 };

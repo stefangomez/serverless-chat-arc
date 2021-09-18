@@ -6,8 +6,10 @@ export const handler: LambdaHandler = async (event, context) => {
   const connectionId = event.requestContext.connectionId;
   const roomId = event.queryStringParameters?.roomId || 'default';
 
-  const dbInstance = await ChatDatabase.getInstance();
-  await dbInstance.joinRoom(roomId, connectionId);
+  if (connectionId) {
+    const dbInstance = await ChatDatabase.getInstance();
+    await dbInstance.joinRoom(roomId, connectionId);
+  }
 
   return { statusCode: 200, body: '' };
 };

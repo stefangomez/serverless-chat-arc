@@ -1,3 +1,4 @@
+import { ChatDatabase } from '@architect/shared/database';
 import { LambdaHandler } from '@architect/functions/http';
 import arc from '@architect/functions';
 
@@ -11,48 +12,43 @@ export const handler: LambdaHandler = async (event, context) => {
   const roomId = message.roomId || 'default';
   const sentAt = message.sentAt || timestamp;
   const username = message.username || connectionId;
-  const data = await arc.tables();
-  const queryResp = await data.chatapp.query({
-    KeyConditionExpression: 'id = :id',
-    ExpressionAttributeValues: { ':id': `room#${roomId}` },
-  });
-  const connections = queryResp?.Items || [];
-  if (message.type === 'user_join' || message.type === 'user_rename') {
-    await data.chatapp.update({
-      Key: { id: `room#${roomId}`, sortKey: `listeners#${connectionId}` },
-      UpdateExpression: 'set #username = :username',
-      ExpressionAttributeNames: { '#username': 'username' },
-      ExpressionAttributeValues: { ':username': username },
-    });
+
+  if (connectionId) {
+    const dbInstance = await ChatDatabase.getInstance();
+    if (message.type === 'user_join' || message.type === 'user_rename') {
+      await dbInstance.updateParticipant(roomId, connectionId, username);
+    }
+    const participants = await dbInstance.getParticipants(roomId);
+
+    await Promise.all(
+      participants.map(async participant => {
+        try {
+          const res = await arc.ws.send({
+            id: participant.connectionId,
+            payload: {
+              numUsers: participants.length,
+              messageId,
+              type: message.type || 'message',
+              text: message.text,
+              oldUsername: message.oldUsername,
+              sender: username,
+              roomId,
+              sentAt,
+              serverReceivedAt: timestamp,
+              connectionId,
+              isSelf: participant.connectionId === connectionId,
+            },
+          });
+          return res;
+        } catch (e) {
+          console.log(`error sending message to connectionId: ${connectionId}`);
+          console.log(e);
+          await dbInstance.deleteParticipant(participant);
+          return null;
+        }
+      })
+    );
   }
-  await Promise.all(
-    connections.map(async (conn: any) => {
-      try {
-        const res = await arc.ws.send({
-          id: conn.connectionId,
-          payload: {
-            numUsers: connections.length,
-            messageId,
-            type: message.type || 'message',
-            text: message.text,
-            oldUsername: message.oldUsername,
-            sender: username,
-            roomId,
-            sentAt,
-            serverReceivedAt: timestamp,
-            connectionId,
-            isSelf: conn.connectionId === connectionId,
-          },
-        });
-        return res;
-      } catch (e) {
-        console.log(`error sending message to connectionId: ${connectionId}`);
-        console.log(e);
-        await data.chatapp.delete({ id: conn.id, sortKey: conn.sortKey });
-        return null;
-      }
-    })
-  );
 
   return { statusCode: 200, body: '' };
 };
