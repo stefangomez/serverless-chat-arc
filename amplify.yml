@@ -11,11 +11,9 @@ backend:
         - if [ "${STAGE_NAME}" = "production" ]; then npm run deploy:production; fi;
         - if [ "${STAGE_NAME}" != "production" ]; then npm run deploy:branch; fi;
         - npm run generate-client-config
-        - node -v
   cache:
     paths:
       - 'node_modules/**/*'
-      # - '/root/.nvm/versions/node/'
 frontend:
   phases:
     build:
@@ -23,7 +21,6 @@ frontend:
         - cd webapp
         - yarn install
         - yarn build
-        - node -v
   artifacts:
     files:
       - '**/*'
