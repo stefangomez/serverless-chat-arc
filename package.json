@@ -10,7 +10,7 @@
     "watch": "tsc -w",
     "serve": "ARC_TABLES_PORT=5001 arc sandbox",
     "start": "npm run build && concurrently npm:watch npm:serve",
-    "env:staging": "arc env staging",
+    "env:staging": "arc env",
     "deploy:staging": "npm run build && arc deploy",
     "deploy:production": "npm run build && arc deploy production"
   },
