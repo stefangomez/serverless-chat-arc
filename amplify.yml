@@ -4,12 +4,15 @@ version: 1
 #     key: value
 backend:
   phases:
+    # preBuild:
+    #   commands:
+    #     - npm i -g @architect/architect@9.0.0
     preBuild:
       commands:
-        - npm i -g @architect/architect@9.0.0
+        - npm i
     build:
       commands:
-        - arc deploy
+        - npm run deploy:staging
 frontend:
   phases:
     build:
