@@ -13,6 +13,9 @@ backend:
     build:
       commands:
         - npm run deploy:staging
+  cache:
+    paths:
+      - 'node_modules/**/*'
 frontend:
   phases:
     build:
