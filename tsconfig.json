@@ -14,7 +14,11 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "lib": ["es2019"],
-    "rootDir": "backend"
+    "rootDir": "backend",
+    "baseUrl": "./backend",
+    "paths": {
+      "@architect/shared/*": ["shared/*"]
+    }
   },
   "include": ["backend/**/*.*"]
 }
