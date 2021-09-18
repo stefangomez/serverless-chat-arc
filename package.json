@@ -18,7 +18,7 @@
   "repository": "https://github.com/architect-examples/arc-example-ws",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@architect/architect": "^8.4.4",
+    "@architect/architect": "9.0.0",
     "@architect/functions": "^3.13.8",
     "@types/architect__functions": "^3.13.6",
     "@types/node": "^16.9.2",
