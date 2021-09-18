@@ -13,6 +13,7 @@ backend:
     build:
       commands:
         - npm run deploy:staging
+        - printenv
   cache:
     paths:
       - 'node_modules/**/*'
