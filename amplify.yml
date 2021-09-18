@@ -27,6 +27,9 @@ frontend:
     files:
       - '**/*'
     baseDirectory: webapp/build
+  cache:
+    paths:
+      - 'node_modules/**/*'
 # frontend:
 #   phases:
 #     build:
