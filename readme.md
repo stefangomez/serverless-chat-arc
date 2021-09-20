@@ -4,39 +4,46 @@ A simple full-stack chat app (web and mobile) with a serverless backend.
 
 built with Architect(https://arc.codes)
 
-## Local dev
+## Local development
 
-### Backend
+# Requirements
 
-```bash
-npm i
-npm start
-```
+- `node` v14.x, `yarn`
+- for mobile dev, see: https://docs.expo.dev/get-started/installation/
 
-### React web app
+### Install dependencies for backend, web, and mobile
 
 ```bash
-cd webapp
-yarn i
-yarn start
+npm run install:all
 ```
 
-### React native mobile app
+### Start backend & webapp
 
 ```bash
-cd mobile-app
-yarn i
-yarn start
+npm run dev
 ```
 
-## Deploying to AWS
+### Start mobile app
+
+```bash
+npm run dev:mobile
+```
+
+## Deploying to webapp & backend to AWS
 
 ### From local machine
 
-instructions to go here
+```
+npm run deploy:staging
+```
+
+```
+npm run deploy:production
+```
 
 ### Using Amplify Console
 
 [![amplifybutton](https://oneclick.amplifyapp.com/button.svg)](https://console.aws.amazon.com/amplify/home#/deploy?repo=https://github.com/stefangomez/serverless-chat-arc-ts)
 
-after initial deploy, update redirects
+- \*\* after initial deploy, you need to manually update the rewrites/redirects to match the configuration in `amplify-redirects.json`
+- `main` branch will deploy a `production` env. All other branches will be a `staging-branch` deploy. see (https://arc.codes/docs/en/guides/developer-experience/deployment)

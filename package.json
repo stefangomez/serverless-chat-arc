@@ -10,6 +10,7 @@
     "copy-cfg": "find backend -maxdepth 3 -type f \\( -name \"*.arc-config\" -o -name \"package.json\" -o -name \"package-lock.json\" \\) | cpio -pdm --quiet dist && cp -rf dist/backend/* dist/. && rm -rf dist/backend",
     "watch": "tsc -w",
     "serve": "ARC_TABLES_PORT=5001 arc sandbox",
+    "dev": "concurrently npm:dev:backend npm:dev:web",
     "dev:backend": "npm run build && concurrently npm:watch npm:serve",
     "dev:web": "yarn --cwd ./webapp start",
     "dev:mobile": "yarn --cwd ./mobileapp start",
