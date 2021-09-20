@@ -27,7 +27,7 @@ async function cmd() {
     const outputsStr = JSON.stringify(outputs);
     console.log('stackOutputs', outputs);
     fs.writeFileSync('webapp/src/app-config.json', outputsStr);
-    fs.writeFileSync('mobile-app/app-config.json', outputsStr);
+    fs.writeFileSync('mobileapp/app-config.json', outputsStr);
   });
 }
 
