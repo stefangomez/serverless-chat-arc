@@ -7,13 +7,14 @@ import {
   HStack,
   Heading,
   NativeBaseProvider,
+  ScrollView,
   Spacer,
   Text,
   VStack,
   useColorMode,
   useColorModeValue,
 } from 'native-base';
-import { StyleSheet, View } from 'react-native';
+import { ScrollViewComponent, StyleSheet, View } from 'react-native';
 
 import React from 'react';
 import appConfig from '../app-config.json';
@@ -48,7 +49,7 @@ const createWebsocketConnection = (roomId: string, username: string, setConnecti
     }
     return { socket: null, state: 'connecting' };
   });
-  const newWsConn = new WebSocket(`${appConfig?.WSS || 'ws://localhost:3333/'}?roomId=${roomId}`);
+  const newWsConn = new WebSocket(`${appConfig?.WSS || 'ws://10.0.0.72:3333/'}?roomId=${roomId}`);
   newWsConn.onopen = e => {
     setConnection({ socket: newWsConn, state: 'connected' });
     newWsConn.send(
@@ -77,7 +78,7 @@ const createWebsocketConnection = (roomId: string, username: string, setConnecti
 const ChatWindow = React.memo(({ chats, onUsernameChange, chatInputRef }: any) => {
   const [initialUsernameSet, setInitialUsernameSet] = React.useState<boolean>(false);
   const usernameInputRef = React.useRef<HTMLInputElement>(null);
-  const chatBoxRef = React.useRef<HTMLDivElement>(null);
+  const chatBoxRef = React.useRef<ScrollViewComponent>(null);
   const colors = useColorModeValue(COLORS.light, COLORS.dark);
   // const [playRcvFx] = useSound(imRcvFx);
   // const [playSndFx] = useSound(imSndFx);
@@ -116,32 +117,32 @@ const ChatWindow = React.memo(({ chats, onUsernameChange, chatInputRef }: any) =
     setInitialUsernameSet(true);
   }, [onUsernameChange, usernameInputRef]);
 
-  //   React.useEffect(() => {
-  //     if (chatBoxRef?.current) {
-  //       // console.log('groupedChats', groupedChats);
-  //       // if (groupedChats.chats.length && groupedChats.lastChat) {
-  //       //   const lastChatType = groupedChats.lastChat.type;
-  //       //   if (lastChatType === 'message') {
-  //       //     if (groupedChats.lastChat.isSelf) {
-  //       //       playSndFx();
-  //       //     } else {
-  //       //       // if (groupedChats.incomingMessageCount === 1) {
-  //       //       //   playFirstIncomingFx();
-  //       //       // } else {
-  //       //       playRcvFx();
-  //       //       // }
-  //       //     }
-  //       //   }
-  //       //   if (lastChatType === 'user_join') {
-  //       //     playJoinFx();
-  //       //   }
-  //       //   if (lastChatType === 'user_leave') {
-  //       //     playLeaveFx();
-  //       //   }
-  //       // }
-  //       chatBoxRef.current.scrollTo({ top: chatBoxRef.current.scrollHeight });
-  //     }
-  //   }, [groupedChats]);
+  React.useEffect(() => {
+    if (chatBoxRef?.current) {
+      console.log('groupedChats', groupedChats);
+      // if (groupedChats.chats.length && groupedChats.lastChat) {
+      //   const lastChatType = groupedChats.lastChat.type;
+      //   if (lastChatType === 'message') {
+      //     if (groupedChats.lastChat.isSelf) {
+      //       playSndFx();
+      //     } else {
+      //       // if (groupedChats.incomingMessageCount === 1) {
+      //       //   playFirstIncomingFx();
+      //       // } else {
+      //       playRcvFx();
+      //       // }
+      //     }
+      //   }
+      //   if (lastChatType === 'user_join') {
+      //     playJoinFx();
+      //   }
+      //   if (lastChatType === 'user_leave') {
+      //     playLeaveFx();
+      //   }
+      // }
+      chatBoxRef.current.scrollToEnd();
+    }
+  }, [groupedChats]);
 
   const onUsernameInputKeyup = React.useCallback(
     (e: any) => {
@@ -153,23 +154,16 @@ const ChatWindow = React.memo(({ chats, onUsernameChange, chatInputRef }: any) =
   );
 
   return (
-    <>
-      <VStack
-        ref={chatBoxRef}
-        py={3}
-        px={4}
-        flex='1 1 auto'
-        w='100%'
-        h='100%'
-        // overflowY='scroll'
-        space={2}
-        //   fontSize='sm'
-        //   textAlign='left'
-        borderColor={colors.chatBorder}
-        bgColor={colors.chatBg}
-        borderWidth='3px'
-        borderRadius='10px'
-      >
+    <ScrollView
+      height='100%'
+      w='100%'
+      borderColor={colors.chatBorder}
+      bg={colors.chatBg}
+      borderWidth='3px'
+      borderRadius='10px'
+      ref={chatBoxRef}
+    >
+      <VStack py={3} px={4} space={2}>
         {groupedChats.chats.map((chat: any) => {
           const sender = groupedChats.usernameMap[chat.connectionId] || chat.sender;
           return (
@@ -179,12 +173,13 @@ const ChatWindow = React.memo(({ chats, onUsernameChange, chatInputRef }: any) =
                   alignItems='flex-start'
                   _text={{ color: chat.isSelf ? colors.chatTextSelf : colors.chatText, textAlign: 'center' }}
                   w='100%'
+                  space={2}
                 >
-                  <Avatar borderRadius='4px' mt='3px' w='40px' h='40px'>
-                    {sender}
+                  <Avatar borderRadius={4} mt={1} w={10} h={10}>
+                    {sender[0].toUpperCase()}
                   </Avatar>
-                  <VStack space={0} alignItems='flex-start'>
-                    <HStack>
+                  <VStack space={0} mt={1} alignItems='flex-start'>
+                    <HStack alignItems='center' space={1}>
                       <Text fontWeight='bold'>{sender}</Text>
                       <Text fontSize={11} color={colors.timestamp}>
                         {new Date(chat.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -197,10 +192,10 @@ const ChatWindow = React.memo(({ chats, onUsernameChange, chatInputRef }: any) =
                 </HStack>
               )}
               {chat && chat.type === 'user_join' && (
-                <Box pt='10px' h='20px' _text={{ color: colors.joinText, textAlign: 'center' }} w='100%'>
+                <Box pt={4} h={8} _text={{ color: colors.joinText, textAlign: 'center' }} w='100%'>
                   <Divider />
-                  <Center mt='-12px'>
-                    <Text pos='relative' p='0 10px' bgColor={colors.chatBg}>
+                  <Center mt={-3}>
+                    <Text py={0} px={4} bg={colors.chatBg}>
                       <Text bold>{chat.messages.map((m: any) => m.sender).join(', ')}</Text> joined ({chat.numUsers}{' '}
                       user
                       {chat.numUsers > 1 ? 's' : ''})
@@ -209,10 +204,10 @@ const ChatWindow = React.memo(({ chats, onUsernameChange, chatInputRef }: any) =
                 </Box>
               )}
               {chat && chat.type === 'user_leave' && (
-                <Box pt='10px' h='20px' _text={{ color: colors.joinText, textAlign: 'center' }} w='100%'>
+                <Box pt={4} h={8} _text={{ color: colors.joinText, textAlign: 'center' }} w='100%'>
                   <Divider />
-                  <Center mt='-12px'>
-                    <Text pos='relative' p='0 10px' bgColor={colors.chatBg}>
+                  <Center mt={-3}>
+                    <Text pos='relative' px={4} py={0} bg={colors.chatBg}>
                       <Text bold>{chat.messages.map((m: any) => m.sender).join(', ')}</Text> left ({chat.numUsers} user
                       {chat.numUsers > 1 ? 's' : ''})
                     </Text>
@@ -220,10 +215,10 @@ const ChatWindow = React.memo(({ chats, onUsernameChange, chatInputRef }: any) =
                 </Box>
               )}
               {chat && chat.type === 'user_rename' && (
-                <Box pt='10px' h='20px' _text={{ color: colors.joinText, textAlign: 'center' }} w='100%'>
+                <Box pt={4} h={8} _text={{ color: colors.joinText, textAlign: 'center' }} w='100%'>
                   <Divider />
-                  <Center mt='-12px'>
-                    <Text pos='relative' p='0 10px' bgColor={colors.chatBg}>
+                  <Center mt={-3}>
+                    <Text pos='relative' py={0} px={4} bg={colors.chatBg}>
                       <Text bold>{chat.oldUsername || chat.connectionId}</Text> is now <Text bold>{chat.sender}</Text>
                     </Text>
                   </Center>
@@ -235,7 +230,7 @@ const ChatWindow = React.memo(({ chats, onUsernameChange, chatInputRef }: any) =
 
         {groupedChats.length === 0 && <Text>Waiting for chats</Text>}
       </VStack>
-    </>
+    </ScrollView>
   );
 });
 
