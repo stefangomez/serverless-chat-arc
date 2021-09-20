@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "serverless-chat-arc-ts-mobile-app",
-    "slug": "serverless-chat-arc-ts-mobile-app",
+    "name": "serverless-chat-arc-ts-mobileapp",
+    "slug": "serverless-chat-arc-ts-mobileapp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
