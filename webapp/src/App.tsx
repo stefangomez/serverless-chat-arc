@@ -387,7 +387,7 @@ export const App = () => {
       <HStack justify='flex-end'>
         <Link
           color='teal.500'
-          href='https://github.com/stefangomez/serverless-chat-arc'
+          href='https://github.com/stefangomez/serverless-chat-arc-ts'
           fontSize='md'
           target='_blank'
           rel='noopener noreferrer'

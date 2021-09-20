@@ -1,5 +1,5 @@
 {
-  "name": "serverless-chat-arc-ws-default",
+  "name": "serverless-chat-arc-ts-ws-default",
   "dependencies": {
     "@architect/functions": "^3.13.8"
   }

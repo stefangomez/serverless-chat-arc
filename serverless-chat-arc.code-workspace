@@ -7,19 +7,14 @@
       "path": "webapp"
     },
     {
-      "path": "backend",
-      "name": "backend"
+      "path": "backend"
     },
     {
-      "path": "mobile-app",
-      "name": "mobile-app"
+      "path": "mobileapp"
     }
   ],
   "settings": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.formatOnSave": true,
-    "[html]": {
-      "editor.defaultFormatter": "vscode.html-language-features"
-    }
+    "editor.formatOnSave": true
   }
 }

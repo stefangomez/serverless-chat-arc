@@ -37,6 +37,6 @@ instructions to go here
 
 ### Using Amplify Console
 
-[![amplifybutton](https://oneclick.amplifyapp.com/button.svg)](https://console.aws.amazon.com/amplify/home#/deploy?repo=https://github.com/stefangomez/serverless-chat-arc)
+[![amplifybutton](https://oneclick.amplifyapp.com/button.svg)](https://console.aws.amazon.com/amplify/home#/deploy?repo=https://github.com/stefangomez/serverless-chat-arc-ts)
 
 after initial deploy, update redirects
