@@ -34,6 +34,7 @@ const sendLeaveMessages = async (dbInstance: ChatDatabase, leftParticipant: Part
     })
   );
 };
+
 export const handler: LambdaHandler = async (event, context) => {
   console.log('ws-disconnect called with', event);
   const connectionId = event.requestContext.connectionId;

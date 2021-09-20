@@ -9,6 +9,7 @@ export type Participant = {
   createdAt: string;
   username?: string;
 };
+
 export class ChatDatabase {
   constructor(private db: ArcDataIndexable) {}
 
@@ -48,6 +49,7 @@ export class ChatDatabase {
     });
     return queryResp?.Items || [];
   }
+
   public async getParticipantConnections(connectionId: string): Promise<Participant[]> {
     const queryResp = await this.db.chatapp.query({
       IndexName: 'GSI',
