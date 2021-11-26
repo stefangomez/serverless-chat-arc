@@ -23,4 +23,10 @@ chatapp
   name GSI
   sortKey *String
   createdAt **String
-  
+
+@lambda-env-vars
+tables
+  chatapp CHAT_APP_TABLE
+
+@plugins
+lambda-env-vars
