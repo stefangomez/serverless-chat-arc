@@ -29,4 +29,4 @@ tables
   chatapp CHAT_APP_TABLE
 
 @plugins
-lambda-env-vars
+arc-plugin-lambda-env

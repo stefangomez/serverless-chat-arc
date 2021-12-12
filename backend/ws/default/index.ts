@@ -14,11 +14,10 @@ export const handler: LambdaHandler = async (event, context) => {
   const username = message.username || connectionId;
 
   if (connectionId) {
-    const dbInstance = await ChatDatabase.getInstance();
     if (message.type === 'user_join' || message.type === 'user_rename') {
-      await dbInstance.updateParticipant(roomId, connectionId, username);
+      await ChatDatabase.updateParticipant(roomId, connectionId, username);
     }
-    const participants = await dbInstance.getParticipants(roomId);
+    const participants = await ChatDatabase.getParticipants(roomId);
 
     await Promise.all(
       participants.map(async participant => {
@@ -43,7 +42,7 @@ export const handler: LambdaHandler = async (event, context) => {
         } catch (e) {
           console.log(`error sending message to connectionId: ${connectionId}`);
           console.log(e);
-          await dbInstance.deleteParticipant(participant);
+          await ChatDatabase.deleteParticipant(participant);
           return null;
         }
       })

@@ -3,8 +3,8 @@ import { ChatDatabase, Participant } from '@architect/shared/database';
 import { LambdaHandler } from '@architect/functions/http';
 import arc from '@architect/functions';
 
-const sendLeaveMessages = async (dbInstance: ChatDatabase, leftParticipant: Participant, messageId: string) => {
-  const participants = await dbInstance.getParticipants(leftParticipant.roomId);
+const sendLeaveMessages = async (leftParticipant: Participant, messageId: string) => {
+  const participants = await ChatDatabase.getParticipants(leftParticipant.roomId);
   const timestamp = new Date().getTime();
   await Promise.all(
     participants.map(async participant => {
@@ -27,7 +27,7 @@ const sendLeaveMessages = async (dbInstance: ChatDatabase, leftParticipant: Part
       } catch (e) {
         console.log(`error sending message to connectionId: ${participant.connectionId}`);
         console.log(e);
-        await dbInstance.deleteParticipant(participant);
+        await ChatDatabase.deleteParticipant(participant);
 
         return null;
       }
@@ -41,12 +41,11 @@ export const handler: LambdaHandler = async (event, context) => {
   const messageId = event.requestContext.messageId || event.requestContext.requestId;
 
   if (connectionId) {
-    const dbInstance = await ChatDatabase.getInstance();
-    const connections = await dbInstance.getParticipantConnections(connectionId);
+    const connections = await ChatDatabase.getParticipantConnections(connectionId);
     await Promise.all(
       connections.map(async participant => {
-        await dbInstance.deleteParticipant(participant);
-        await sendLeaveMessages(dbInstance, participant, messageId);
+        await ChatDatabase.deleteParticipant(participant);
+        await sendLeaveMessages(participant, messageId);
       })
     );
   }
