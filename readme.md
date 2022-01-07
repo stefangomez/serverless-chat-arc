@@ -2,6 +2,8 @@
 
 A simple full-stack chat app (web and mobile) with a serverless backend.
 
+See live demo here: https://serverless-chat-arc.nafets.dev/
+
 built with Architect(https://arc.codes)
 
 ## Local development
