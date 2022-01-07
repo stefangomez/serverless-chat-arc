@@ -1,5 +1,5 @@
 @app
-serverless-chat-arc-ts
+serverless-chat-arc
 
 @ws
 default
