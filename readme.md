@@ -23,12 +23,6 @@ npm run install:all
 npm run dev
 ```
 
-### Start mobile app
-
-```bash
-npm run dev:mobile
-```
-
 ## Deploying to webapp & backend to AWS
 
 ### From local machine
@@ -43,7 +37,7 @@ npm run deploy:production
 
 ### Using Amplify Console
 
-[![amplifybutton](https://oneclick.amplifyapp.com/button.svg)](https://console.aws.amazon.com/amplify/home#/deploy?repo=https://github.com/stefangomez/serverless-chat-arc-ts)
+[![amplifybutton](https://oneclick.amplifyapp.com/button.svg)](https://console.aws.amazon.com/amplify/home#/deploy?repo=https://github.com/stefangomez/serverless-chat-arc)
 
 - \*\* after initial deploy, you need to manually update the rewrites/redirects to match the configuration in `amplify-redirects.json`
-- `main` branch will deploy a `production` env. All other branches will be a `staging-branch` deploy. see (https://arc.codes/docs/en/guides/developer-experience/deployment)
+- `main` branch will deploy a `production` env. All other branches will be a `staging-{branch-name}` deploy. see (https://arc.codes/docs/en/guides/developer-experience/deployment)
