@@ -1,6 +1,6 @@
 # Serverless Chat App Example
 
-A simple full-stack chat app (web and mobile) with a serverless backend.
+A simple full-stack chat web app (mobile example in progress) with a serverless backend.
 
 See live demo here: https://serverless-chat-arc.nafets.dev/
 
@@ -11,9 +11,8 @@ built with Architect(https://arc.codes)
 # Requirements
 
 - `node` v14.x, `yarn`
-- for mobile dev, see: https://docs.expo.dev/get-started/installation/
 
-### Install dependencies for backend, web, and mobile
+### Install dependencies for backend, and web
 
 ```bash
 npm run install:all
