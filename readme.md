@@ -37,8 +37,7 @@ npm run deploy:production
 ```
 
 ### Using Amplify Console
-
-[![amplifybutton](https://oneclick.amplifyapp.com/button.svg)](https://console.aws.amazon.com/amplify/home#/deploy?repo=https://github.com/stefangomez/serverless-chat-arc)
-
+- Fork this repo
+- Follow guide to connect your repo to amplify for automatic deployments: https://docs.aws.amazon.com/amplify/latest/userguide/getting-started.html
 - \*\* after initial deploy, you need to manually update the rewrites/redirects to match the configuration in `amplify-redirects.json`
 - `main` branch will deploy a `production` env. All other branches will be a `staging-{branch-name}` deploy. see (https://arc.codes/docs/en/guides/developer-experience/deployment)
